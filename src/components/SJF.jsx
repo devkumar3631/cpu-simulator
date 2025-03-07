@@ -9,7 +9,7 @@ const processColors = {
   // Add more process colors as needed
 };
 
-const FCFS = ({ processes }) => {
+const SJF = ({ processes }) => {
   const [pendingProcesses, setPendingProcesses] = useState([]);
   const [completedProcesses, setCompletedProcesses] = useState([]);
   const [currentProcess, setCurrentProcess] = useState(null);
@@ -18,14 +18,21 @@ const FCFS = ({ processes }) => {
   const [fadeOutProcess, setFadeOutProcess] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [isSimulating, setIsSimulating] = useState(false);
-  const [animationSpeed, setAnimationSpeed] = useState(1);
+  const [arrivedQueue, setArrivedQueue] = useState([]);
   const [animatingTimeJump, setAnimatingTimeJump] = useState(false);
-  const [timeJumpTarget, setTimeJumpTarget] = useState(0);
+  const [timeJumpTarget, setTimeJumpTarget] = useState(null);
+  const [highlightNewArrivals, setHighlightNewArrivals] = useState([]);
+  const [animationSpeed, setAnimationSpeed] = useState(1); // 1 = normal, 0.5 = slow, 2 = fast
 
   // Initialize simulation
   const startSimulation = () => {
-    // No sorting - just use processes as they are
-    setPendingProcesses([...processes]);
+    // Initialize with processes sorted by arrival time
+    const sortedByArrival = [...processes].sort((a, b) => 
+      parseInt(a.arrivalTime) - parseInt(b.arrivalTime)
+    );
+    
+    setPendingProcesses(sortedByArrival);
+    setArrivedQueue([]);
     setCompletedProcesses([]);
     setGanttChart([]);
     setCurrentProcess(null);
@@ -33,127 +40,168 @@ const FCFS = ({ processes }) => {
     setFadeOutProcess(null);
     setCurrentTime(0);
     setAnimatingTimeJump(false);
-    setTimeJumpTarget(0);
+    setTimeJumpTarget(null);
+    setHighlightNewArrivals([]);
     setIsSimulating(true);
   };
 
-  // Calculate delay based on animation speed
-  const getAnimationDelay = (baseDelay) => {
-    return baseDelay / animationSpeed;
-  };
+  // Smoothly animate time changes
+  useEffect(() => {
+    if (!timeJumpTarget || !animatingTimeJump) return;
+  
+    const startTime = currentTime;
+    const endTime = timeJumpTarget;
+    const duration = 1000 / animationSpeed; // Animation duration based on speed
+    const startTimestamp = performance.now();
+  
+    const animateTimeChange = (timestamp) => {
+      const elapsed = timestamp - startTimestamp;
+      const progress = Math.min(elapsed / duration, 1);
+  
+      // Apply cubic ease-out for smoother animation
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      
+      const newTime = Math.floor(startTime + (endTime - startTime) * easedProgress);
+  
+      if (newTime !== currentTime) {
+        setCurrentTime(newTime);
+      }
+  
+      if (progress < 1) {
+        requestAnimationFrame(animateTimeChange);
+      } else {
+        setCurrentTime(endTime);
+        setAnimatingTimeJump(false);
+        setTimeJumpTarget(null);
+      }
+    };
+  
+    requestAnimationFrame(animateTimeChange);
+  }, [timeJumpTarget, animatingTimeJump, animationSpeed]);
+  
+
+  // Update arrived queue based on current time
+  useEffect(() => {
+    if (!isSimulating || animatingTimeJump) return;
+    
+    // Move processes from pending to arrived queue if they've arrived by current time
+    const newlyArrived = pendingProcesses.filter(
+      p => parseInt(p.arrivalTime) <= currentTime
+    );
+    
+    if (newlyArrived.length > 0) {
+      setPendingProcesses(prev => 
+        prev.filter(p => parseInt(p.arrivalTime) > currentTime)
+      );
+      
+      // Highlight newly arrived processes
+      setHighlightNewArrivals(newlyArrived.map(p => p.name));
+      
+      // Clear highlighting after animation
+      setTimeout(() => {
+        setHighlightNewArrivals([]);
+      }, 1500 / animationSpeed);
+      
+      setArrivedQueue(prev => [...prev, ...newlyArrived]);
+    }
+  }, [currentTime, pendingProcesses, isSimulating, animatingTimeJump, animationSpeed]);
 
   // Handle simulation steps
   useEffect(() => {
-    if (!isSimulating || pendingProcesses.length === 0) return;
+    if (!isSimulating || animatingTimeJump || (pendingProcesses.length === 0 && arrivedQueue.length === 0 && !currentProcess)) {
+      if (isSimulating && pendingProcesses.length === 0 && arrivedQueue.length === 0 && !currentProcess) {
+        setIsSimulating(false);
+      }
+      return;
+    }
     
     const simulationStep = async () => {
-      // Get processes that have arrived by the current time
-      const arrivedProcesses = pendingProcesses;
-      
-      // Initialize minProcess with the first process
-      let minProcess = arrivedProcesses[0];
-      setCurrentProcess(minProcess);
-      
-      // Visual delay to show initial minimum process
-      await new Promise(resolve => setTimeout(resolve, getAnimationDelay(500)));
-      
-      // Loop through all arrived processes to find the one with minimum arrival time
-      for (let i = 1; i < arrivedProcesses.length; i++) {
-        const processToCompare = arrivedProcesses[i];
+      // If no process is currently being executed and there are processes in the arrived queue
+      if (!currentProcess && arrivedQueue.length > 0) {
+        // Find process with shortest burst time in the arrived queue
+        let nextProcess = await findShortestJob();
         
-        // Set the current process being compared in red
+        // Process execution animation
+        await new Promise(resolve => setTimeout(resolve, 500 / animationSpeed));
+        
+        // Start fade-out animation
+        setFadeOutProcess(nextProcess.name);
+        
+        // Calculate process timing
+        const startTime = currentTime;
+        const endTime = startTime + parseInt(nextProcess.burstTime);
+        
+        // Add to Gantt chart with timing information
+        const processWithTiming = {
+          ...nextProcess,
+          startTime,
+          endTime
+        };
+        
+        await new Promise(resolve => setTimeout(resolve, 800 / animationSpeed));
+        
+        // Update states
+        setGanttChart(prev => [...prev, processWithTiming]);
+        setCompletedProcesses(prev => [...prev, nextProcess]);
+        setArrivedQueue(prev => prev.filter(p => p.name !== nextProcess.name));
+        setCurrentProcess(null);
+        setFadeOutProcess(null);
+        
+        // Animate time change to process completion
+        setAnimatingTimeJump(true);
+        setTimeJumpTarget(endTime);
+      } else if (pendingProcesses.length > 0 && arrivedQueue.length === 0) {
+        // If no processes have arrived yet, jump to the arrival time of the earliest process
+        const earliestArrival = Math.min(...pendingProcesses.map(p => parseInt(p.arrivalTime)));
+        
+        // Animate time jump
+        setAnimatingTimeJump(true);
+        setTimeJumpTarget(earliestArrival);
+      }
+    };
+    
+    // Helper function to visualize finding the shortest job
+    const findShortestJob = async () => {
+      // Initialize with the first arrived process
+      let shortestProcess = arrivedQueue[0];
+      setCurrentProcess(shortestProcess);
+      
+      // Visual delay to show initial selected process
+      await new Promise(resolve => setTimeout(resolve, 500 / animationSpeed));
+      
+      // Loop through all arrived processes to find the one with minimum burst time
+      for (let i = 1; i < arrivedQueue.length; i++) {
+        const processToCompare = arrivedQueue[i];
+        
+        // Set the current process being compared
         setComparingProcess(processToCompare);
         
         // Visual delay to show comparison
-        await new Promise(resolve => setTimeout(resolve, getAnimationDelay(500)));
+        await new Promise(resolve => setTimeout(resolve, 500 / animationSpeed));
         
-        // If this process has earlier arrival time, update minProcess
-        if (parseInt(processToCompare.arrivalTime) < parseInt(minProcess.arrivalTime)) {
-          minProcess = processToCompare;
-          setCurrentProcess(minProcess);
+        // If this process has shorter burst time, update shortestProcess
+        if (parseInt(processToCompare.burstTime) < parseInt(shortestProcess.burstTime)) {
+          shortestProcess = processToCompare;
+          setCurrentProcess(shortestProcess);
           
-          // Visual delay to show the new minimum
-          await new Promise(resolve => setTimeout(resolve, getAnimationDelay(300)));
+          // Visual delay to show the new shortest
+          await new Promise(resolve => setTimeout(resolve, 300 / animationSpeed));
         }
       }
       
       // Clear comparison highlighting
       setComparingProcess(null);
       
-      // Select the process with minimum arrival time
-      const nextProcess = minProcess;
-      
-      // Process execution animation
-      await new Promise(resolve => setTimeout(resolve, getAnimationDelay(500)));
-      
-      // Start fade-out animation
-      setFadeOutProcess(nextProcess.name);
-      
-      // Calculate process timing
-      const startTime = Math.max(currentTime, parseInt(minProcess.arrivalTime));
-      const endTime = startTime + parseInt(minProcess.burstTime);
-      
-      // Add to Gantt chart with timing information
-      const processWithTiming = {
-        ...nextProcess,
-        startTime,
-        endTime
-      };
-      
-      // Animate time jump if necessary
-      if (startTime > currentTime) {
-        // Show time jump animation
-        setAnimatingTimeJump(true);
-        setTimeJumpTarget(startTime);
-        
-        // Animate the time increment
-        const incrementTime = async () => {
-          for (let t = currentTime + 1; t <= startTime; t++) {
-            setCurrentTime(t);
-            await new Promise(resolve => setTimeout(resolve, getAnimationDelay(100)));
-          }
-          setAnimatingTimeJump(false);
-        };
-        
-        await incrementTime();
-      }
-      
-      // Animate process execution
-      setAnimatingTimeJump(true);
-      setTimeJumpTarget(endTime);
-      
-      const executeProcess = async () => {
-        for (let t = startTime + 1; t <= endTime; t++) {
-          setCurrentTime(t);
-          await new Promise(resolve => setTimeout(resolve, getAnimationDelay(100)));
-        }
-        setAnimatingTimeJump(false);
-      };
-      
-      await executeProcess();
-      
-      // Update states
-      setGanttChart(prev => [...prev, processWithTiming]);
-      setCompletedProcesses(prev => [...prev, nextProcess]);
-      setPendingProcesses(prev => prev.filter(p => p.name !== nextProcess.name));
-      setCurrentProcess(null);
-      setFadeOutProcess(null);
+      return shortestProcess;
     };
     
-    const timer = setTimeout(simulationStep, getAnimationDelay(500));
+    const timer = setTimeout(simulationStep, 500 / animationSpeed);
     return () => clearTimeout(timer);
-  }, [pendingProcesses, currentTime, isSimulating, animationSpeed]);
-  
-  // Calculate metrics when simulation ends
-  useEffect(() => {
-    if (isSimulating && pendingProcesses.length === 0) {
-      setIsSimulating(false);
-    }
-  }, [pendingProcesses, isSimulating]);
+  }, [pendingProcesses, arrivedQueue, currentProcess, currentTime, isSimulating, animatingTimeJump, animationSpeed]);
 
   return (
-    <div className="mt-10 mb-10 flex flex-col items-center p-6 bg-black rounded-lg border border-white text-white min-w-[80vw] mx-auto">
-      <h2 className="text-2xl font-bold mb-6">FCFS Scheduling Visualization</h2>
+    <div className="flex flex-col items-center p-6 bg-black rounded-lg border border-white text-white min-w-[80vw] mx-auto">
+      <h2 className="text-2xl font-bold mb-6">SJF Scheduling Visualization</h2>
 
       <div className="w-full flex justify-between items-center mb-8">
         <button
@@ -165,7 +213,7 @@ const FCFS = ({ processes }) => {
               : "bg-black text-white hover:bg-gray-900"
           }`}
         >
-          {isSimulating ? "Simulation in Progress..." : "Start FCFS Simulation"}
+          {isSimulating ? "Simulation in Progress..." : "Start SJF Simulation"}
         </button>
         
         {/* Animation Speed Control */}
@@ -220,22 +268,14 @@ const FCFS = ({ processes }) => {
 
       {/* Process Queue Visualization */}
       <div className="w-full flex flex-col gap-8 mb-8">
-        {/* Pending Processes */}
+        {/* Not Yet Arrived Processes */}
         <div className="w-full bg-black p-4 rounded-lg border border-white">
-          <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Pending Processes</h3>
+          <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Not Yet Arrived</h3>
           <div className="flex flex-wrap gap-4 justify-center">
             {pendingProcesses.map((p) => (
               <div
                 key={p.name}
-                className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
-                  fadeOutProcess === p.name
-                    ? "opacity-0 scale-75 transform translate-y-4"
-                    : currentProcess && currentProcess.name === p.name
-                      ? "scale-110 border-yellow-500 border-2 bg-yellow-900 bg-opacity-30"
-                      : comparingProcess && comparingProcess.name === p.name
-                        ? "scale-105 border-red-500 border-2 bg-red-900 bg-opacity-30"
-                        : "border-white"
-                }`}
+                className="p-4 rounded-lg border border-white text-center w-32 transition-all duration-500"
                 style={{
                   borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`
                 }}
@@ -247,8 +287,46 @@ const FCFS = ({ processes }) => {
                 </div>
               </div>
             ))}
-            {pendingProcesses.length === 0 && !isSimulating && (
-              <p className="text-gray-400 italic">No pending processes</p>
+            {pendingProcesses.length === 0 && (
+              <p className="text-gray-400 italic">All processes have arrived</p>
+            )}
+          </div>
+        </div>
+
+        {/* Ready Queue (Arrived Processes) */}
+        <div className="w-full bg-black p-4 rounded-lg border border-white">
+          <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Ready Queue (Sorting by Burst Time)</h3>
+          <div className="flex flex-wrap gap-4 justify-center">
+            {arrivedQueue.map((p) => (
+              <div
+                key={p.name}
+                className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
+                  fadeOutProcess === p.name
+                    ? "opacity-0 scale-75 transform translate-y-4"
+                    : currentProcess && currentProcess.name === p.name
+                      ? "scale-110 border-yellow-500 border-2 bg-yellow-900 bg-opacity-30"
+                      : comparingProcess && comparingProcess.name === p.name
+                        ? "scale-105 border-red-500 border-2 bg-red-900 bg-opacity-30"
+                        : highlightNewArrivals.includes(p.name)
+                          ? "scale-110 border-green-500 border-2 animate-pulse"
+                          : "border-white"
+                }`}
+                style={{
+                  borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`,
+                  transition: highlightNewArrivals.includes(p.name) 
+                    ? "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)" 
+                    : "all 0.3s ease-in-out"
+                }}
+              >
+                <p className="font-bold text-lg">{p.name}</p>
+                <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
+                  <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
+                  <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
+                </div>
+              </div>
+            ))}
+            {arrivedQueue.length === 0 && (
+              <p className="text-gray-400 italic">No processes in ready queue</p>
             )}
           </div>
         </div>
@@ -260,7 +338,7 @@ const FCFS = ({ processes }) => {
             {completedProcesses.map((p) => (
               <div
                 key={p.name}
-                className="p-4 rounded-lg border border-white text-center w-32"
+                className="p-4 rounded-lg border border-white text-center w-32 animate-fadeIn transition-all duration-500"
                 style={{ 
                   borderLeftColor: processColors[p.name] || "#3498db",
                   borderLeftWidth: "5px"
@@ -307,7 +385,7 @@ const FCFS = ({ processes }) => {
                     {/* Idle time block */}
                     {idleTime > 0 && (
                       <div 
-                        className="h-full flex items-center justify-center bg-gray-900 border-r border-white bg-opacity-50"
+                        className="h-full flex items-center justify-center bg-gray-900 border-r border-white bg-opacity-50 transition-all duration-300"
                         style={{ 
                           width: `${idleWidth}%`,
                           minWidth: idleTime > 0 ? '30px' : '0'
@@ -321,11 +399,12 @@ const FCFS = ({ processes }) => {
                     <div className="relative h-full px-1">
                       {/* Process box */}
                       <div
-                        className="h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105"
+                        className="h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105 animate-fadeIn"
                         style={{
                           width: `${processWidth}%`,
                           backgroundColor: processColors[p.name] || "#3498db",
-                          minWidth: '50px'
+                          minWidth: '50px',
+                          animationDelay: `${index * 0.2}s`
                         }}
                       >
                         <div className="flex flex-col items-center">
@@ -351,7 +430,7 @@ const FCFS = ({ processes }) => {
                   </div>
                 );
               })}
-              
+
               {/* Timeline base */}
               <div className="absolute left-0 right-0 -bottom-8 h-px bg-gray-500"></div>
             </div>
@@ -363,7 +442,7 @@ const FCFS = ({ processes }) => {
 
       {/* Metrics Table (when simulation completes) */}
       {completedProcesses.length > 0 && completedProcesses.length === processes.length && (
-        <div className="w-full bg-black p-4 rounded-lg border border-white mt-8">
+        <div className="w-full bg-black p-4 rounded-lg border border-white mt-8 animate-fadeIn">
           <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Performance Metrics</h3>
           
           <div className="overflow-x-auto">
@@ -380,12 +459,16 @@ const FCFS = ({ processes }) => {
                 </tr>
               </thead>
               <tbody>
-                {ganttChart.map(p => {
+                {ganttChart.map((p, index) => {
                   const turnaroundTime = p.endTime - parseInt(p.arrivalTime);
                   const waitingTime = p.startTime - parseInt(p.arrivalTime);
                   
                   return (
-                    <tr key={p.name}>
+                    <tr 
+                      key={p.name} 
+                      className="transition-all duration-300 animate-fadeIn"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
                       <td className="py-2 px-4 border border-white font-medium" style={{color: processColors[p.name] || "#3498db"}}>{p.name}</td>
                       <td className="py-2 px-4 border border-white text-center">{p.arrivalTime}</td>
                       <td className="py-2 px-4 border border-white text-center">{p.burstTime}</td>
@@ -399,7 +482,7 @@ const FCFS = ({ processes }) => {
                 
                 {/* Average metrics row */}
                 {ganttChart.length > 0 && (
-                  <tr className="bg-gray-900 font-semibold">
+                  <tr className="bg-gray-900 font-semibold animate-fadeIn" style={{ animationDelay: '0.5s' }}>
                     <td className="py-2 px-4 border border-white text-right" colSpan="5">Average</td>
                     <td className="py-2 px-4 border border-white text-center">
                       {(ganttChart.reduce((sum, p) => sum + (p.endTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
@@ -414,8 +497,30 @@ const FCFS = ({ processes }) => {
           </div>
         </div>
       )}
+
+      {/* Add CSS animations to <style> */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.6; }
+          100% { opacity: 1; }
+        }
+        
+        .animate-pulse {
+          animation: pulse 1s infinite;
+        }
+      `}</style>
     </div>
   );
 };
 
-export default FCFS;
+export default SJF;

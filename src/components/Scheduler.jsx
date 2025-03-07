@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import ProcessForm from "./ProcessForm";
-import ProcessTable from "./ProcessTable";
+import SRJF from "./SRJF";
 import FCFS from "./FCFS";
 import ProcessDetails from "./ProcessDetails";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SJF from "./SJF";
 
 const Scheduler = () => {
   const [algorithm, setAlgorithm] = useState("FCFS");
@@ -60,7 +61,9 @@ const Scheduler = () => {
         </div>
       </div>
       <div>
-      <FCFS processes={processes} />
+      {algorithm==="FCFS" && <FCFS processes={processes} /> }
+      {algorithm==="SJF" && <SJF processes={processes} />}
+      {algorithm==="SRTF" && <SRJF processes={processes} />}
       </div>
 
     </div>
