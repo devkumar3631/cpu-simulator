@@ -115,7 +115,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
         )}
 
         {/* Queue Level (For MLQ & MLFQ) */}
-        {["MLQ", "MLFQ"].includes(algorithm) && (
+        {/* {["MLQ", "MLFQ"].includes(algorithm) && (
           <input
             type="number"
             placeholder="Enter Queue Level"
@@ -124,10 +124,10 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
             onChange={(e) => setProcess({ ...process, queueLevel: e.target.value })}
             className="border p-3 rounded bg-black text-white w-full mt-1"
           />
-        )}
+        )} */}
 
         {/* Time Quantum (For RR & MLFQ) */}
-        {["RR", "MLFQ"].includes(algorithm) && (
+        {/* {["RR", "MLFQ"].includes(algorithm) && (
           <input
             type="number"
             placeholder="Enter Time Quantum"
@@ -136,7 +136,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
             onChange={(e) => setProcess({ ...process, timeQuantum: e.target.value })}
             className="border p-3 rounded bg-black text-white w-full mt-1"
           />
-        )}
+        )} */}
       </div>
 
       {/* Submit Button */}
