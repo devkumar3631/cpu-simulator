@@ -6,7 +6,6 @@ const processColors = {
   P3: "#3357FF",
   P4: "#FF33A8",
   P5: "#33FFF9",
-  // Add more process colors as needed
 };
 
 const SRJF = ({ processes }) => {
@@ -25,13 +24,22 @@ const SRJF = ({ processes }) => {
 
   // Initialize simulation
   const startSimulation = () => {
+    console.log("Starting simulation...");
+
     // Create a deep copy of processes with remaining time
-    const processesWithRemaining = processes.map(p => ({
-      ...p,
-      remainingTime: parseInt(p.burstTime),
-      originalBurstTime: parseInt(p.burstTime)
-    }));
-    
+    const processesWithRemaining = processes.map((p, index) => {
+      const newProcess = {
+        ...p,
+        remainingTime: parseInt(p.burstTime),
+        originalBurstTime: parseInt(p.burstTime),
+        id: `${p.name}-${index}` // Add a unique ID to each process
+      };
+      console.log(`Process ${index}:`, newProcess);
+      return newProcess;
+    });
+
+    console.log("Initial pending processes:", processesWithRemaining);
+
     setPendingProcesses(processesWithRemaining);
     setActiveProcesses([]);
     setCompletedProcesses([]);
@@ -43,93 +51,109 @@ const SRJF = ({ processes }) => {
     setAnimatingTimeJump(false);
     setTimeJumpTarget(0);
     setIsSimulating(true);
+
+    console.log("State variables reset.");
+    console.log("Simulation started.");
   };
 
   // Calculate delay based on animation speed
   const getAnimationDelay = (baseDelay) => {
-    return baseDelay / animationSpeed;
+    if (animationSpeed === 0) {
+      console.warn("Warning: animationSpeed is 0, preventing division by zero.");
+      return Infinity; // Handle division by zero gracefully
+    }
+
+    const calculatedDelay = baseDelay / animationSpeed;
+    return calculatedDelay;
   };
 
-  // Handle simulation steps
+  // Main simulation logic
   useEffect(() => {
     if (!isSimulating) return;
+
+    console.log(`--- Simulation Step at time ${currentTime} ---`);
+    console.log("Pending Processes:", pendingProcesses);
+    console.log("Active Processes:", activeProcesses);
+
+    // Simulation termination condition
     if (pendingProcesses.length === 0 && activeProcesses.length === 0) {
+      console.log("No pending or active processes left. Stopping simulation.");
       setIsSimulating(false);
       return;
     }
-    
+
     const simulationStep = async () => {
-      // Move arrived processes from pending to active
-      const newlyArrived = pendingProcesses.filter(p => 
-        parseInt(p.arrivalTime) <= currentTime
-      );
+      console.log(`Checking newly arrived processes at time ${currentTime}...`);
+
+      // Step 1: Move arrived processes from pending to active
+      const newlyArrived = pendingProcesses.filter(p => parseInt(p.arrivalTime) <= currentTime);
       
       if (newlyArrived.length > 0) {
-        setPendingProcesses(prev => 
-          prev.filter(p => parseInt(p.arrivalTime) > currentTime)
-        );
-        setActiveProcesses(prev => [...prev, ...newlyArrived]);
+        console.log("Newly arrived processes:", newlyArrived);
+        // Fix: Make sure we're not adding duplicate processes
+        setPendingProcesses(prev => prev.filter(p => parseInt(p.arrivalTime) > currentTime));
         
-        // Visual delay to show new processes arriving
-        await new Promise(resolve => setTimeout(resolve, getAnimationDelay(300)));
+        // Add only processes that don't already exist in active processes
+        const existingIds = activeProcesses.map(p => p.id);
+        const uniqueNewProcesses = newlyArrived.filter(p => !existingIds.includes(p.id));
+        
+        if (uniqueNewProcesses.length > 0) {
+          setActiveProcesses(prev => [...prev, ...uniqueNewProcesses]);
+          await new Promise(resolve => setTimeout(resolve, getAnimationDelay(300)));
+        }
       }
-      
-      // If no active processes but pending processes exist, jump to next arrival
+
+      // Step 2: Handle time jumps if no active process
       if (activeProcesses.length === 0 && pendingProcesses.length > 0) {
-        const nextArrivalTime = Math.min(
-          ...pendingProcesses.map(p => parseInt(p.arrivalTime))
-        );
-        
-        // Animate time jump
+        const nextArrivalTime = Math.min(...pendingProcesses.map(p => parseInt(p.arrivalTime)));
+        console.log(`No active processes. Jumping to time ${nextArrivalTime}`);
+
         setAnimatingTimeJump(true);
         setTimeJumpTarget(nextArrivalTime);
-        
-        // Jump time to next arrival
+
         for (let t = currentTime + 1; t <= nextArrivalTime; t++) {
+          console.log(`Time increment: ${t}`);
           setCurrentTime(t);
-          await new Promise(resolve => setTimeout(resolve, getAnimationDelay(50)));
         }
-        
+
         setAnimatingTimeJump(false);
-        return; // Return to re-trigger effect with updated time
+        return;
       }
-      
-      // Find process with shortest remaining time
+
+      // Step 3: Select process with shortest remaining time
+      console.log("Active processes:", activeProcesses);
       let shortestProcess = null;
       let shortestTime = Infinity;
-      
-      for (let i = 0; i < activeProcesses.length; i++) {
-        const process = activeProcesses[i];
+
+      console.log("Selecting shortest remaining time process...");
+      for (const process of activeProcesses) {
+        console.log(`Comparing process ${process.name} with remaining time ${process.remainingTime}`);
         setComparingProcess(process);
-        
-        // Visual delay to show comparison
         await new Promise(resolve => setTimeout(resolve, getAnimationDelay(300)));
-        
+
         if (process.remainingTime < shortestTime) {
           shortestProcess = process;
           shortestTime = process.remainingTime;
           setCurrentProcess(shortestProcess);
-          
-          // Visual delay to show new shortest
+          console.log(`Selected process: ${shortestProcess.name}`);
           await new Promise(resolve => setTimeout(resolve, getAnimationDelay(200)));
         }
       }
-      
+
       setComparingProcess(null);
-      
-      // Check for preemption
+
+      // Step 4: Check for preemption
       const lastGanttItem = ganttChart.length > 0 ? ganttChart[ganttChart.length - 1] : null;
-      const isPreemption = lastGanttItem && 
-                          lastGanttItem.name !== shortestProcess.name && 
-                          !lastGanttItem.completed;
-      
+      const isPreemption = lastGanttItem &&
+        lastGanttItem.name !== shortestProcess.name &&
+        !lastGanttItem.completed;
+
       if (isPreemption) {
-        // Show preemption animation
+        console.log(`Preempting process ${lastGanttItem.name} for ${shortestProcess.name}`);
         setPreemption(lastGanttItem.name);
         await new Promise(resolve => setTimeout(resolve, getAnimationDelay(500)));
         setPreemption(null);
-        
-        // Update last gantt chart entry to mark end time
+
         setGanttChart(prev => {
           const updated = [...prev];
           updated[updated.length - 1] = {
@@ -140,163 +164,174 @@ const SRJF = ({ processes }) => {
           return updated;
         });
       }
-      
-      // Process execution
-      const processStartTime = currentTime;
-      let processEndTime;
-      
-      // Add to Gantt chart
-      const nextGanttItem = {
+
+      // Step 5: Create new Gantt chart entry
+      if(ganttChart.length>0 && ganttChart[ganttChart.length-1].name === shortestProcess.name){
+        console.log("Process already in Gantt chart");
+      }
+      else{
+      const newGanttItem = {
         name: shortestProcess.name,
+        startTime: currentTime,
+        endTime: null,
+        completed: false,
         arrivalTime: shortestProcess.arrivalTime,
         burstTime: shortestProcess.originalBurstTime,
-        remainingBefore: shortestProcess.remainingTime,
-        startTime: processStartTime,
-        endTime: null, // Will be updated when process finishes or is preempted
-        completed: false
+        remainingBefore: shortestProcess.remainingTime
       };
+      setGanttChart(prev => [...prev, newGanttItem]);
+      console.log(`Adding ${shortestProcess.name} to Gantt chart.`);
+    }
+
+
+      // Step 6: Execute process until completion or preemption
+      let shouldContinue = true;
+      let nextTime = currentTime;
       
-      setGanttChart(prev => [...prev, nextGanttItem]);
-      
-      // Execute time unit by time unit
-      const executeOneUnit = async () => {
-        // Increment time
-        const newTime = currentTime + 1;
-        setCurrentTime(newTime);
+      while (shouldContinue) {
+        shouldContinue = false;
+        nextTime++;
+        console.log(`Executing process ${shortestProcess.name} at time ${nextTime}`);
+        setCurrentTime(nextTime);
         setAnimatingTimeJump(true);
-        setTimeJumpTarget(newTime);
-        
+        setTimeJumpTarget(nextTime);
         await new Promise(resolve => setTimeout(resolve, getAnimationDelay(300)));
         setAnimatingTimeJump(false);
-        
+
         // Update remaining time for current process
-        setActiveProcesses(prev => 
-          prev.map(p => 
-            p.name === shortestProcess.name 
-              ? { ...p, remainingTime: p.remainingTime - 1 }
-              : p
-          )
-        );
-        
-        // Check for newly arrived processes during this time unit
-        const newArrivals = pendingProcesses.filter(p => 
-          parseInt(p.arrivalTime) === newTime
-        );
-        
-        if (newArrivals.length > 0) {
-          setPendingProcesses(prev => 
-            prev.filter(p => parseInt(p.arrivalTime) > newTime)
-          );
-          setActiveProcesses(prev => [...prev, ...newArrivals]);
-          
-          // Return true if we need to preempt due to new arrivals
-          // that might have shorter remaining time
-          return true;
-        }
-        
-        // Check if process is completed
-        const updatedActiveProcesses = activeProcesses.map(p => 
-          p.name === shortestProcess.name 
+        const updatedActiveProcesses = activeProcesses.map(p =>
+          p.id === shortestProcess.id
             ? { ...p, remainingTime: p.remainingTime - 1 }
             : p
         );
-        
-        const updatedProcess = updatedActiveProcesses.find(p => p.name === shortestProcess.name);
-        if (updatedProcess && updatedProcess.remainingTime <= 0) {
-          // Process completed
-          setCompletedProcesses(prev => [...prev, updatedProcess]);
-          setActiveProcesses(prev => prev.filter(p => p.name !== updatedProcess.name));
-          
-          // Update gantt chart to mark completion
+
+        // Get the updated process
+        // Fix: Use id to find the process instead of name
+        const updatedProcess = updatedActiveProcesses.find(p => p.id === shortestProcess.id);
+
+        // Check if process is complete
+        if (updatedProcess.remainingTime === 0) {
+          console.log(`Process ${updatedProcess.name} completed at time ${nextTime}`);
+          setCompletedProcesses(prev => [...prev, { ...updatedProcess, remainingTime: 0 }]);
+          // Fix: Use id to filter out the completed process
+          setActiveProcesses(updatedActiveProcesses.filter(p => p.id !== updatedProcess.id));
+
           setGanttChart(prev => {
             const updated = [...prev];
             updated[updated.length - 1] = {
               ...updated[updated.length - 1],
-              endTime: newTime,
+              endTime: nextTime,
               completed: true,
               remainingAfter: 0
             };
             return updated;
           });
-          
-          return false; // No need to preempt, process is done
+
+          shouldContinue = false;
+          break;
+        } else {
+          setActiveProcesses(updatedActiveProcesses);
         }
-        
-        return false; // Continue executing current process
-      };
-      
-      // Execute until completion or preemption
-      let shouldPreempt = false;
-      do {
-        shouldPreempt = await executeOneUnit();
-        
-        if (shouldPreempt) {
-          // We have new arrivals, update gantt chart and check if we need to preempt
+
+        // Check for new arrivals at this time
+        const newArrivals = pendingProcesses.filter(p => parseInt(p.arrivalTime) === nextTime);
+
+        if (newArrivals.length > 0) {
+          console.log(`New process arrivals at ${nextTime}:`, newArrivals);
+          setPendingProcesses(prev => prev.filter(p => parseInt(p.arrivalTime) > nextTime));
+          
+          // Add only processes that don't already exist in active processes
+          const existingIds = activeProcesses.map(p => p.id);
+          const uniqueNewProcesses = newArrivals.filter(p => !existingIds.includes(p.id));
+          
+          if (uniqueNewProcesses.length > 0) {
+            setActiveProcesses(prev => [...prev, ...uniqueNewProcesses]);
+          }
+
+          // Preempt if needed
+          const shortestNewArrival = newArrivals.reduce(
+            (shortest, current) => parseInt(current.burstTime) < parseInt(shortest.burstTime) ? current : shortest,
+            newArrivals[0]
+          );
+
+          if (parseInt(shortestNewArrival.burstTime) < updatedProcess.remainingTime) {
+            console.log(`Preempting ${updatedProcess.name} for ${shortestNewArrival.name} at time ${nextTime}`);
+
+            setGanttChart(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                ...updated[updated.length - 1],
+                endTime: nextTime,
+                completed: false,
+                remainingAfter: updatedProcess.remainingTime
+              };
+              return updated;
+            });
+
+            shouldContinue = false;
+            break;
+          }
+        }
+
+        // Check if any other process has shorter remaining time
+        // Fix: Need to check all processes except the current one
+        const shorterProcess = updatedActiveProcesses.find(p =>
+          p.id !== shortestProcess.id && p.remainingTime < updatedProcess.remainingTime
+        );
+
+        if (shorterProcess) {
+          console.log(`Preempting ${updatedProcess.name} for ${shorterProcess.name} at time ${nextTime}`);
+
           setGanttChart(prev => {
             const updated = [...prev];
             updated[updated.length - 1] = {
               ...updated[updated.length - 1],
-              endTime: currentTime,
+              endTime: nextTime,
               completed: false,
-              remainingAfter: shortestProcess.remainingTime - 1
+              remainingAfter: updatedProcess.remainingTime
             };
             return updated;
           });
-          
-          break; // Break to re-evaluate shortest remaining job
-        }
-        
-        // If current process has finished, break to find next process
-        const processFinished = activeProcesses
-          .filter(p => p.name === shortestProcess.name)
-          .every(p => p.remainingTime <= 1);
-        
-        if (processFinished) {
+
+          shouldContinue = false;
           break;
         }
-      } while (!shouldPreempt);
-      
-      // Clear current process
+      }
+
+      console.log(`Ending execution cycle at time ${nextTime}`);
       setCurrentProcess(null);
     };
-    
+
     const timer = setTimeout(simulationStep, getAnimationDelay(500));
     return () => clearTimeout(timer);
   }, [isSimulating, pendingProcesses, activeProcesses, currentTime, animationSpeed]);
 
-  // Calculate the total execution time for a process from Gantt chart
-  const calculateTotalExecutionTime = (processName) => {
-    return ganttChart
-      .filter(item => item.name === processName)
-      .reduce((sum, item) => sum + (item.endTime - item.startTime), 0);
-  };
-
   // Calculate process metrics
   const calculateMetrics = () => {
     const metrics = {};
-    
+
     processes.forEach(proc => {
       const processName = proc.name;
       const arrivalTime = parseInt(proc.arrivalTime);
-      
+
       // Find all gantt chart segments for this process
       const segments = ganttChart.filter(item => item.name === processName);
-      
+
       if (segments.length === 0) return;
-      
+
       // Find completion time (end time of the last segment)
       const completionTime = Math.max(...segments.map(s => s.endTime));
-      
+
       // Calculate turnaround time
       const turnaroundTime = completionTime - arrivalTime;
-      
+
       // Calculate waiting time (turnaround time - burst time)
       const burstTime = parseInt(proc.burstTime);
       const waitingTime = turnaroundTime - burstTime;
-      
+
       // Calculate response time (start time of first segment - arrival time)
       const responseTime = segments[0].startTime - arrivalTime;
-      
+
       metrics[processName] = {
         arrivalTime,
         burstTime,
@@ -306,7 +341,7 @@ const SRJF = ({ processes }) => {
         responseTime
       };
     });
-    
+
     return metrics;
   };
 
