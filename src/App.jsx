@@ -12,7 +12,7 @@ function App() {
         <div className="m-auto p-6 bg-white-400">
         <Scheduler />
         </div>
-        {/* <GitHubFooter /> */}
+        <GitHubFooter />
     </div>
   );
 }

@@ -14,7 +14,7 @@ const ProcessDetails = ({ processes, setProcesses }) => {
           {processes.map((p, index) => (
             <div
               key={index}
-              className="w-48 h-auto flex flex-col justify-center items-center p-4 border border-black dark:border-white rounded-lg shadow-lg bg-red-100 text-black dark:bg-orange dark:text-white hover:scale-105 transition-all"
+              className="w-48 h-auto flex flex-col justify-center items-center p-4 border border-black dark:border-white rounded-lg shadow-lg bg-yellow-300/90 text-black dark:bg-orange dark:text-black hover:scale-105 transition-all"
             >
               <p className="font-semibold text-lg">{p.name}</p>
               <p className="text-sm"><strong>Burst Time:</strong> {p.burstTime}</p>
@@ -38,7 +38,7 @@ const ProcessDetails = ({ processes, setProcesses }) => {
           ))}
           <button
             onClick={clearProcesses}
-            className="mt-6 w-full py-2 bg-white text-black rounded hover:bg-yellow-400 hover:text-black transition-all  items-center gap-2 mx-auto border border-white"
+            className="mt-6 w-full py-2 bg-white text-black rounded hover:bg-rose-400 hover:text-white transition-all  items-center gap-2 mx-auto border border-white"
           >
             Clear All Processes
           </button>

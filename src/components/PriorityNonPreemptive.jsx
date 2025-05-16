@@ -503,7 +503,7 @@ const PriorityNonPreemptive = ({ processes }) => {
         </div>
       )}
 
-      {/* Priority Explanation */}
+      {/* Priority Explanation
       <div className="w-full bg-black p-4 rounded-lg border border-white mt-8">
         <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">About Priority Non-Preemptive Scheduling</h3>
         <div className="prose prose-invert max-w-none">
@@ -516,7 +516,7 @@ const PriorityNonPreemptive = ({ processes }) => {
           </ul>
           <p className="mt-3">This algorithm can lead to priority inversion and starvation of lower priority processes. To mitigate this, many systems implement aging mechanisms that gradually increase the priority of waiting processes.</p>
         </div>
-      </div>
+      </div> */}
 
       {/* Add CSS animations to <style> */}
       <style jsx>{`

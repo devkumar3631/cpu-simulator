@@ -152,7 +152,7 @@ const FCFS = ({ processes }) => {
   }, [pendingProcesses, isSimulating]);
 
   return (
-    <div className="mt-10 mb-10 flex flex-col items-center p-6 bg-black rounded-lg border border-white text-white min-w-[80vw] mx-auto">
+    <div className="mt-10 mb-10 flex flex-col items-center p-6 bg-sky-400 rounded-lg border border-white text-white min-w-[80vw] mx-auto">
       <h2 className="text-2xl font-bold mb-6">FCFS Scheduling Visualization</h2>
 
       <div className="w-full flex justify-between items-center mb-8">
@@ -203,6 +203,8 @@ const FCFS = ({ processes }) => {
         </div>
       </div>
 
+      
+
       {/* Current Time Display */}
       <div className="w-full mb-6 text-center">
         <div className="inline-block px-4 py-2 bg-black text-white rounded-lg border border-white overflow-hidden relative">
@@ -216,6 +218,10 @@ const FCFS = ({ processes }) => {
             </span>
           )}
         </div>
+      </div>
+
+      <div className="w-full flex justify-center mb-6">
+        this is the running animate
       </div>
 
       {/* Process Queue Visualization */}
