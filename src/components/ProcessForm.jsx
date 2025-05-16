@@ -69,7 +69,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 mb-10 border border-white rounded-lg shadow-md transition-all bg-black text-white">
+    <form onSubmit={handleSubmit} className="p-6 mb-10 border border-white rounded-lg shadow-md transition-all bg-blue-400 text-white">
       <h2 className="text-2xl font-semibold mb-4 text-center">Add a Process</h2>
 
       <div className="flex flex-col gap-4 justify-center">
@@ -79,7 +79,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
           placeholder="Enter Process Name"
           value={process.name}
           onChange={(e) => setProcess({ ...process, name: e.target.value })}
-          className="border p-3 rounded bg-black text-white w-full mt-1"
+          className="border p-3 rounded bg-white text-black w-full mt-1"
         />
 
         {/* Burst Time */}
@@ -89,7 +89,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
           min="1"
           value={process.burstTime}
           onChange={(e) => setProcess({ ...process, burstTime: e.target.value })}
-          className="border p-3 rounded bg-black text-white w-full mt-1"
+          className="border p-3 rounded bg-white text-black w-full mt-1"
         />
 
         {/* Arrival Time */}
@@ -99,7 +99,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
           min="0"
           value={process.arrivalTime}
           onChange={(e) => setProcess({ ...process, arrivalTime: e.target.value })}
-          className="border p-3 rounded bg-black text-white w-full mt-1"
+          className="border p-3 rounded bg-white text-black w-full mt-1"
         />
 
         {/* Priority (For Priority Scheduling) */}
@@ -142,7 +142,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
       {/* Submit Button */}
       <button
         type="submit"
-        className="mt-4 p-3 bg-black text-white rounded hover:bg-white hover:text-black transition-all flex items-center gap-2 mx-auto border border-white"
+        className="mt-4 p-3 bg-white text-black rounded hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2 mx-auto border border-white"
       >
         Add Process
       </button>

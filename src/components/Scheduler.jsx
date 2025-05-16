@@ -23,22 +23,22 @@ const Scheduler = () => {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-black text-white transition-all p-6">
+    <div className="flex flex-col items-center min-h-screen bg-white-500   text-white transition-all p-6">
       <ToastContainer />
 
       {/* Title */}
-      <div className="w-full max-w-6xl text-center py-8 mb-6 border-b border-gray-700 font-poppins">
+      <div className="w-full max-w-6xl text-center text-black py-8 mb-6 border-b border-gray-700 font-poppins">
         <h1 className="text-4xl font-bold">CPU Scheduling Simulator</h1>
-        <p className="text-gray-400 mt-3 mb-3 text-lg">
+        <p className="text-black mt-3 mb-3 text-lg">
           Visualize different CPU scheduling algorithms
         </p>
       </div>
 
       {/* Algorithm Selection */}
       <div className="flex flex-col items-center text-center mb-10">
-        <label className="text-2xl font-medium mb-4">Select Algorithm:</label>
+        <label className="text-2xl font-medium mb-4 text-black">Select Algorithm:</label>
         <select
-          className="border p-3 rounded bg-black text-white text-center"
+          className="border p-3 rounded bg-blue-400 text-white text-center"
           value={algorithm}
           onChange={(e) => setAlgorithm(e.target.value)}
         >
