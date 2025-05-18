@@ -4,7 +4,7 @@ const ProcessDetails = ({ processes, setProcesses }) => {
   }
 
   return (
-    <div className="p-6 border border-black dark:border-white rounded-lg shadow-md bg-sky-500/50 text-white dark:bg-sky-400 dark:text-white transition-all min-h-89.5">
+    <div className="p-6 border border-black dark:border-white rounded-lg shadow-md bg-sky-300 text-white dark:bg-sky-400/50 dark:text-white transition-all min-h-89.5">
       <h2 className="text-xl font-semibold mb-4 text-center">Process Details</h2>
 
       {processes.length === 0 ? (
@@ -14,7 +14,7 @@ const ProcessDetails = ({ processes, setProcesses }) => {
           {processes.map((p, index) => (
             <div
               key={index}
-              className="w-48 h-auto flex flex-col justify-center items-center p-4 border border-black dark:border-white rounded-lg shadow-lg bg-yellow-300/90 text-black dark:bg-orange dark:text-black hover:scale-105 transition-all"
+              className="w-48 h-auto flex flex-col justify-center items-center p-4 border border-black dark:border-white rounded-lg shadow-lg bg-yellow-300 text-black dark:bg-orange dark:text-black hover:scale-105 transition-all"
             >
               <p className="font-semibold text-lg">{p.name}</p>
               <p className="text-sm"><strong>Burst Time:</strong> {p.burstTime}</p>

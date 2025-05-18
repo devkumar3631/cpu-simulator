@@ -148,7 +148,7 @@ const Scheduler = () => {
 
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-white-500   text-white transition-all p-6">
+    <div className="flex flex-col items-center min-h-screen bg-purple-200/70   text-white transition-all p-6">
       <ToastContainer />
 
       {/* Title */}
@@ -163,7 +163,7 @@ const Scheduler = () => {
       <div className="flex flex-col items-center text-center mb-10">
         <label className="text-2xl font-medium mb-4 text-black">Select Algorithm:</label>
         <select
-          className="border p-3 rounded bg-cyan-300 text-slate-600 text-center"
+          className="border p-3 rounded bg-cyan-300/50 text-slate-600 text-center"
           value={algorithm}
           onChange={(e) => setAlgorithm(e.target.value)}
         >
@@ -180,7 +180,7 @@ const Scheduler = () => {
 
         {/* Algorithm Description */}
         {algorithm && (
-          <div className="mt-6 p-4 border border-white rounded-lg shadow-md bg-rose-400/90 text-white">
+          <div className="mt-6 p-4 border border-white rounded-lg shadow-md bg-rose-400/50 text-white">
             {algorithmAbout[algorithm]}
           </div>
         )}

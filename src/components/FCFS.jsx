@@ -147,11 +147,11 @@ const FCFS = ({ processes }) => {
   
   // Calculate metrics when simulation ends
   useEffect(() => {
-    if (isSimulating && pendingProcesses.length === 0) {
-      setIsSimulating(false);
-    }
-  }, [pendingProcesses, isSimulating]);
-  
+      if (isSimulating && pendingProcesses.length === 0) {
+        setIsSimulating(false);
+      }
+    }, [pendingProcesses, isSimulating]);
+    
   // Generate instructions for Gantt chart drawing
   // This effect runs when ganttChart changes
   useEffect(() => {
@@ -161,32 +161,47 @@ const FCFS = ({ processes }) => {
     }
 
     const newInstr = [];
-    newInstr.push("1️⃣  Sort processes by arrival time (FCFS).");
+    newInstr.push(
+      <span key="start">
+         Sort all processes in order of their arrival time (First Come First Serve).
+      </span>
+    );
 
     ganttChart.forEach((p, i) => {
       const prevEnd = i === 0 ? 0 : ganttChart[i - 1].endTime;
 
       if (p.startTime > prevEnd) {
         newInstr.push(
-          `🛑 CPU is idle from t=${prevEnd} to t=${p.startTime}.`
+          <span key={`idle-${i}`}>
+             CPU is <strong className="text-yellow-300">idle</strong> from t={prevEnd} to t={p.startTime} due to no process being ready.
+          </span>
         );
       }
 
       newInstr.push(
-        `✅  Run ${p.name} from t=${p.startTime} to t=${p.endTime} (burst ${p.endTime - p.startTime}).`
+        <span key={`exec-${i}`}>
+           Process <strong style={{ color: "blue" }}>{p.name}</strong> is executed from t={p.startTime} to t={p.endTime} (Burst Time = {p.endTime - p.startTime}).
+        </span>
       );
     });
 
-    newInstr.push("📊 Draw the Gantt chart segments in that order.");
+    newInstr.push(
+      <span key="end">
+         Finally, draw the Gantt chart based on the above execution sequence.
+      </span>
+    );
+
     setInstructions(newInstr);
   }, [ganttChart]);
+
+
 
 
   return (
     // Instructions List
     <div className="flex ">
       {/* LEFT side – your existing Gantt JSX */}
-      <div className="w-3/4 pr-4 mt-10 mb-10 flex flex-col items-center p-6 bg-sky-400 rounded-lg border border-white text-white min-w-[60vw] mx-auto">
+      <div className="w-3/4 pr-4 mt-10 mb-10 flex flex-col items-center p-6 bg-sky-400/50 rounded-lg border border-white text-white min-w-[60vw] mx-auto">
         {/* …your <div className="w-full bg-black …"> code unchanged … */}
          <h2 className="text-2xl font-bold mb-6">FCFS Scheduling Visualization</h2>
 
@@ -196,8 +211,8 @@ const FCFS = ({ processes }) => {
               disabled={isSimulating}
               className={`px-6 py-3 rounded-lg border border-white font-bold transition-all duration-300 ${
                 isSimulating 
-                  ? "bg-gray-800 text-gray-400 cursor-not-allowed" 
-                  : "bg-black text-white hover:bg-gray-900"
+                  ? "bg-violet-400 text-gray-400 cursor-not-allowed" 
+                  : "bg-purple-400/50 text-white hover:bg-purple-400"
               }`}
             >
               {isSimulating ? "Simulation in Progress..." : "Start FCFS Simulation"}
@@ -210,7 +225,7 @@ const FCFS = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(0.5)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 0.5 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 0.5 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -219,7 +234,7 @@ const FCFS = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(1)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 1 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 1 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -228,7 +243,7 @@ const FCFS = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(2)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 2 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 2 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -240,13 +255,13 @@ const FCFS = ({ processes }) => {
 
           {/* Current Time Display */}
           <div className="w-full mb-6 text-center">
-            <div className="inline-block px-4 py-2 bg-black text-white rounded-lg border border-white overflow-hidden relative">
+            <div className="inline-block px-4 py-2 bg-purple-400/50 text-white rounded-lg border border-white overflow-hidden relative">
               <span className="font-semibold">Current Time:</span> 
-              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-yellow-400" : ""}`}>
+              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-white-300" : ""}`}>
                 {currentTime}
               </span>
               {animatingTimeJump && (
-                <span className="text-xs text-yellow-400 ml-2">
+                <span className="text-xs text-white-300 ml-2">
                   → {timeJumpTarget}
                 </span>
               )}
@@ -256,19 +271,19 @@ const FCFS = ({ processes }) => {
           {/* Process Queue Visualization */}
           <div className="w-full flex flex-col gap-8 mb-8">
             {/* Pending Processes */}
-            <div className="w-full bg-black p-4 rounded-lg border border-white">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Pending Processes</h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 {pendingProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
+                    className={`p-4 rounded-lg border bg-yellow-200/50 text-center transition-all duration-500 w-32 ${
                       fadeOutProcess === p.name
                         ? "opacity-0 scale-75 transform translate-y-4"
                         : currentProcess && currentProcess.name === p.name
-                          ? "scale-110 border-yellow-500 border-2 bg-yellow-900 bg-opacity-30"
+                          ? "scale-110 border-yellow-500 border-2 bg-yellow-300  text-black bg-opacity-30"
                           : comparingProcess && comparingProcess.name === p.name
-                            ? "scale-105 border-red-500 border-2 bg-red-900 bg-opacity-30"
+                            ? "scale-105 border-red-500 border-2 bg-yellow-300  text-black bg-opacity-30"
                             : "border-white"
                     }`}
                     style={{
@@ -277,25 +292,25 @@ const FCFS = ({ processes }) => {
                   >
                     <p className="font-bold text-lg">{p.name}</p>
                     <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
-                      <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                      <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Arrival: {p.arrivalTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Burst: {p.burstTime}</p>
                     </div>
                   </div>
                 ))}
                 {pendingProcesses.length === 0 && !isSimulating && (
-                  <p className="text-gray-400 italic">No pending processes</p>
+                  <p className="text-white-400 italic">No pending processes</p>
                 )}
               </div>
             </div>
 
             {/* Completed Processes */}
-            <div className="w-full bg-black p-4 rounded-lg border border-white">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Completed Processes</h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 {completedProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className="p-4 rounded-lg border border-white text-center w-32"
+                    className="p-4 rounded-lg border border-white text-center w-32 bg-yellow-300 text-black"
                     style={{ 
                       borderLeftColor: processColors[p.name] || "#3498db",
                       borderLeftWidth: "5px"
@@ -313,7 +328,7 @@ const FCFS = ({ processes }) => {
           </div>
 
           {/* Gantt Chart */}
-          <div className="w-full bg-black p-4 rounded-lg border border-white">
+          <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
             <h3 className="text-lg font-semibold mb-4 border-b border-white pb-2">Gantt Chart</h3>
             
             {ganttChart.length > 0 ? (
@@ -342,13 +357,13 @@ const FCFS = ({ processes }) => {
                         {/* Idle time block */}
                         {idleTime > 0 && (
                           <div 
-                            className="h-full flex items-center justify-center bg-gray-900 border-r border-white bg-opacity-50"
+                            className="h-full flex items-center justify-center bg-purple-400/30 border-r border-white"
                             style={{ 
                               width: `${idleWidth}%`,
                               minWidth: idleTime > 0 ? '30px' : '0'
                             }}
                           >
-                            <span className="text-gray-300 text-xs font-medium">Idle</span>
+                            <span className="text-white-300 text-xs font-medium">Idle</span>
                           </div>
                         )}
                         
@@ -356,29 +371,29 @@ const FCFS = ({ processes }) => {
                         <div className="relative h-full px-1">
                           {/* Process box */}
                           <div
-                            className="h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105"
+                            className="h-4/5 mt-2 flex items-center justify-center bg-yellow-300 text-black font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105"
                             style={{
                               width: `${processWidth}%`,
-                              backgroundColor: processColors[p.name] || "#3498db",
+                              // backgroundColor: processColors[p.name] || "#3498db",
                               minWidth: '50px'
                             }}
                           >
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col items-center text-black">
                               <span className="text-sm font-bold">{p.name}</span>
-                              <span className="text-xs">{p.endTime - p.startTime}u</span>
+                              <span className="text-xs ">{p.endTime - p.startTime}u</span>
                             </div>
                           </div>
                           
                           {/* Vertical timeline connector */}
-                          <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-gray-600 transform -translate-x-1/2"></div>
+                          <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-white transform -translate-x-1/2"></div>
                           
                           {/* Time labels with improved positioning */}
-                          <div className="absolute left-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform -translate-x-1/2">
+                          <div className="absolute left-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform -translate-x-1/2">
                             {p.startTime}
                           </div>
                           
                           {index === ganttChart.length - 1 && (
-                            <div className="absolute right-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform translate-x-1/2">
+                            <div className="absolute right-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform translate-x-1/2">
                               {p.endTime}
                             </div>
                           )}
@@ -388,7 +403,7 @@ const FCFS = ({ processes }) => {
                   })}
                   
                   {/* Timeline base */}
-                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-gray-500"></div>
+                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-white"></div>
                 </div>
               </div>
             ) : (
@@ -398,13 +413,13 @@ const FCFS = ({ processes }) => {
 
           {/* Metrics Table (when simulation completes) */}
           {completedProcesses.length > 0 && completedProcesses.length === processes.length && (
-            <div className="w-full bg-black p-4 rounded-lg border border-white mt-8">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white mt-8">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Performance Metrics</h3>
               
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-black">
+                <table className="min-w-full bg-rose-400/50 text-white">
                   <thead>
-                    <tr className="bg-gray-900">
+                    <tr className="">
                       <th className="py-2 px-4 border border-white">Process</th>
                       <th className="py-2 px-4 border border-white">Arrival Time</th>
                       <th className="py-2 px-4 border border-white">Burst Time</th>
@@ -421,7 +436,7 @@ const FCFS = ({ processes }) => {
                       
                       return (
                         <tr key={p.name}>
-                          <td className="py-2 px-4 border border-white font-medium" style={{color: processColors[p.name] || "#3498db"}}>{p.name}</td>
+                          <td className="py-2 px-4 border border-white font-medium ">{p.name}</td>
                           <td className="py-2 px-4 border border-white text-center">{p.arrivalTime}</td>
                           <td className="py-2 px-4 border border-white text-center">{p.burstTime}</td>
                           <td className="py-2 px-4 border border-white text-center">{p.startTime}</td>
@@ -433,7 +448,7 @@ const FCFS = ({ processes }) => {
                     })}
                     
                     {/* Average metrics row */}
-                    {ganttChart.length > 0 && (
+                    {/* {ganttChart.length > 0 && (
                       <tr className="bg-gray-900 font-semibold">
                         <td className="py-2 px-4 border border-white text-right" colSpan="5">Average</td>
                         <td className="py-2 px-4 border border-white text-center">
@@ -443,9 +458,14 @@ const FCFS = ({ processes }) => {
                           {(ganttChart.reduce((sum, p) => sum + (p.startTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
                         </td>
                       </tr>
-                    )}
+                    )} */}
                   </tbody>
                 </table>
+              </div>
+
+              <div className="mt-4">
+                <p>Average turn around time : {(ganttChart.reduce((sum, p) => sum + (p.endTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}</p>
+                <p>Average waiting time : {(ganttChart.reduce((sum, p) => sum + (p.startTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}</p>
               </div>
             </div>
           )}
@@ -453,20 +473,20 @@ const FCFS = ({ processes }) => {
 
       {/* RIGHT side – instruction list */}
       {/* wrapper lives in a two-column layout */}
-      <div className="w-1/4 min-w-[32vw] pr-4">
+      <div className="w-1/4 min-w-[35vw] pr-4">
         {/* sticky rail */}
         <div className="
             sticky top-4        /* stays 16 px from top while scrolling */
             border border-white rounded-lg
-            bg-sky-400 text-white
-            p-6 h-[80vh]        /* gives it a tall box   */
+            bg-sky-400/50 text-white
+            p-6 h-[80vh]      /* gives it a tall box   */
             /*flex flex-col justify-center items-center*/
-            mt-10 mb-10 ml-4 mr-0
+            mt-10 ml-4 
           ">
           
-          <h1 className="text-lg font-semibold mb-4 text-center">STEP-BY-STEP INSTRUCTION</h1>
+          <h2 className="text-lg font-semibold mb-4 text-center">STEP-BY-STEP INSTRUCTION</h2>
 
-          <ol className="space-y-2 list-decimal list-inside text-sm font-medium">
+          <ol className="space-y-2 list-decimal list-inside text-sm font-medium text-lg">
             {instructions.map((txt, idx) => (
               <li key={idx} className="leading-snug">
                 {txt}
