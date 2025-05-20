@@ -148,12 +148,12 @@ const Scheduler = () => {
 
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-purple-200/70   text-white transition-all p-6">
+    <div className="flex flex-col items-center min-h-screen bg-orange-200/70   text-white transition-all p-6">
       <ToastContainer />
 
       {/* Title */}
       <div className="w-full max-w-6xl text-center text-black py-8 mb-6 border-b border-gray-700 font-poppins">
-        <h1 className="text-4xl font-bold">CPU SCHEDULING SIMULATOR</h1>
+        <h1 className="text-6xl font-bold">CPU SCHEDULING SIMULATOR</h1>
         <p className="text-black mt-3 mb-3 text-lg">
           Visualize different CPU scheduling algorithms
         </p>
@@ -161,9 +161,9 @@ const Scheduler = () => {
 
       {/* Algorithm Selection */}
       <div className="flex flex-col items-center text-center mb-10">
-        <label className="text-2xl font-medium mb-4 text-black">Select Algorithm:</label>
+        <label className="text-2xl font-medium font-serif mb-4 text-black">Select Algorithm:</label>
         <select
-          className="border p-3 rounded bg-cyan-300/50 text-slate-600 text-center"
+          className="border p-3 rounded bg-cyan-300 text-slate-600 text-center"
           value={algorithm}
           onChange={(e) => setAlgorithm(e.target.value)}
         >
@@ -180,7 +180,7 @@ const Scheduler = () => {
 
         {/* Algorithm Description */}
         {algorithm && (
-          <div className="mt-6 p-4 border border-white rounded-lg shadow-md bg-rose-400/50 text-white">
+          <div className="mt-6 p-4 border border-white rounded-lg shadow-md bg-red-400/70 text-white">
             {algorithmAbout[algorithm]}
           </div>
         )}
@@ -203,7 +203,7 @@ const Scheduler = () => {
           </div>
         </div>
       </div>
-      <div>
+      <div className="w-full mx-10">
         {algorithm === "FCFS" && <FCFS processes={processes} />}
         {algorithm === "SJF" && <SJF processes={processes} />}
         {algorithm === "SRTF" && <SRJF processes={processes} />}

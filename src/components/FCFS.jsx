@@ -196,7 +196,6 @@ const FCFS = ({ processes }) => {
 
 
 
-
   return (
     // Instructions List
     <div className="flex ">
@@ -211,8 +210,8 @@ const FCFS = ({ processes }) => {
               disabled={isSimulating}
               className={`px-6 py-3 rounded-lg border border-white font-bold transition-all duration-300 ${
                 isSimulating 
-                  ? "bg-violet-400 text-gray-400 cursor-not-allowed" 
-                  : "bg-purple-400/50 text-white hover:bg-purple-400"
+                  ? "bg-lime-400/50 text-white cursor-not-allowed" 
+                  : "bg-red-400 text-white hover:bg-red-300"
               }`}
             >
               {isSimulating ? "Simulation in Progress..." : "Start FCFS Simulation"}
@@ -310,7 +309,7 @@ const FCFS = ({ processes }) => {
                 {completedProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className="p-4 rounded-lg border border-white text-center w-32 bg-yellow-300 text-black"
+                    className="p-4 rounded-lg border border-white text-center w-32 bg-lime-300 text-black"
                     style={{ 
                       borderLeftColor: processColors[p.name] || "#3498db",
                       borderLeftWidth: "5px"
@@ -473,7 +472,7 @@ const FCFS = ({ processes }) => {
 
       {/* RIGHT side – instruction list */}
       {/* wrapper lives in a two-column layout */}
-      <div className="w-1/4 min-w-[35vw] pr-4">
+      <div className="w-1/4 min-w-[30vw] pr-4 ml-5 my-10">
         {/* sticky rail */}
         <div className="
             sticky top-4        /* stays 16 px from top while scrolling */
@@ -481,14 +480,14 @@ const FCFS = ({ processes }) => {
             bg-sky-400/50 text-white
             p-6 h-[80vh]      /* gives it a tall box   */
             /*flex flex-col justify-center items-center*/
-            mt-10 ml-4 
+            overflow-y-auto    /* scrolls if content overflows */
           ">
           
           <h2 className="text-lg font-semibold mb-4 text-center">STEP-BY-STEP INSTRUCTION</h2>
 
           <ol className="space-y-2 list-decimal list-inside text-sm font-medium text-lg">
             {instructions.map((txt, idx) => (
-              <li key={idx} className="leading-snug">
+              <li key={idx} className="leading-snug text-lg">
                 {txt}
               </li>
             ))}

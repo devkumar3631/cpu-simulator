@@ -14,6 +14,7 @@ const SJF = ({ processes }) => {
   const [completedProcesses, setCompletedProcesses] = useState([]);
   const [currentProcess, setCurrentProcess] = useState(null);
   const [ganttChart, setGanttChart] = useState([]);
+  const [instructions, setInstructions] = useState([]);
   const [comparingProcess, setComparingProcess] = useState(null);
   const [fadeOutProcess, setFadeOutProcess] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -199,326 +200,402 @@ const SJF = ({ processes }) => {
     return () => clearTimeout(timer);
   }, [pendingProcesses, arrivedQueue, currentProcess, currentTime, isSimulating, animatingTimeJump, animationSpeed]);
 
-  return (
-    <div className="flex flex-col items-center p-6 bg-black rounded-lg border border-white text-white min-w-[80vw] mx-auto">
-      <h2 className="text-2xl font-bold mb-6">SJF Scheduling Visualization</h2>
+  useEffect(() => {
+    if (ganttChart.length === 0) {
+      setInstructions([]);
+      return;
+    }
 
-      <div className="w-full flex justify-between items-center mb-8">
-        <button
-          onClick={startSimulation}
-          disabled={isSimulating}
-          className={`px-6 py-3 rounded-lg border border-white font-bold transition-all duration-300 ${
-            isSimulating 
-              ? "bg-gray-800 text-gray-400 cursor-not-allowed" 
-              : "bg-black text-white hover:bg-gray-900"
-          }`}
-        >
-          {isSimulating ? "Simulation in Progress..." : "Start SJF Simulation"}
-        </button>
-        
-        {/* Animation Speed Control */}
-        <div className="flex items-center space-x-3">
-          <span className="text-sm font-medium">Animation Speed:</span>
-          <div className="flex space-x-2">
-            <button 
-              onClick={() => setAnimationSpeed(0.5)} 
-              className={`px-3 py-1 rounded border transition-all duration-300 ${
-                animationSpeed === 0.5 ? "bg-white text-black" : "bg-black text-white"
-              }`}
-              disabled={isSimulating && !animatingTimeJump}
-            >
-              0.5x
-            </button>
-            <button 
-              onClick={() => setAnimationSpeed(1)} 
-              className={`px-3 py-1 rounded border transition-all duration-300 ${
-                animationSpeed === 1 ? "bg-white text-black" : "bg-black text-white"
-              }`}
-              disabled={isSimulating && !animatingTimeJump}
-            >
-              1x
-            </button>
-            <button 
-              onClick={() => setAnimationSpeed(2)} 
-              className={`px-3 py-1 rounded border transition-all duration-300 ${
-                animationSpeed === 2 ? "bg-white text-black" : "bg-black text-white"
-              }`}
-              disabled={isSimulating && !animatingTimeJump}
-            >
-              2x
-            </button>
-          </div>
-        </div>
-      </div>
+    const newInstr = [];
 
-      {/* Current Time Display */}
-      <div className="w-full mb-6 text-center">
-        <div className="inline-block px-4 py-2 bg-black text-white rounded-lg border border-white overflow-hidden relative">
-          <span className="font-semibold">Current Time:</span> 
-          <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-yellow-400" : ""}`}>
-            {currentTime}
+    newInstr.push(
+      <span key="start">
+        Sort all processes by <strong>arrival time</strong>. Then, at each moment, choose the process with the <strong>shortest burst time</strong> among the ones that have arrived.
+      </span>
+    );
+
+    ganttChart.forEach((p, i) => {
+      const prevEnd = i === 0 ? 0 : ganttChart[i - 1].endTime;
+
+      if (p.startTime > prevEnd) {
+        newInstr.push(
+          <span key={`idle-${i}`}>
+            CPU is <strong className="text-yellow-300">idle</strong> from t={prevEnd} to t={p.startTime} because no process was available to execute.
           </span>
-          {animatingTimeJump && (
-            <span className="text-xs text-yellow-400 ml-2">
-              → {timeJumpTarget}
-            </span>
-          )}
-        </div>
-      </div>
+        );
+      }
 
-      {/* Process Queue Visualization */}
-      <div className="w-full flex flex-col gap-8 mb-8">
-        {/* Not Yet Arrived Processes */}
-        <div className="w-full bg-black p-4 rounded-lg border border-white">
-          <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Not Yet Arrived</h3>
-          <div className="flex flex-wrap gap-4 justify-center">
-            {pendingProcesses.map((p) => (
-              <div
-                key={p.name}
-                className="p-4 rounded-lg border border-white text-center w-32 transition-all duration-500"
-                style={{
-                  borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`
-                }}
-              >
-                <p className="font-bold text-lg">{p.name}</p>
-                <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
-                  <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                  <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
-                </div>
-              </div>
-            ))}
-            {pendingProcesses.length === 0 && (
-              <p className="text-gray-400 italic">All processes have arrived</p>
-            )}
-          </div>
-        </div>
+      newInstr.push(
+        <span key={`exec-${i}`}>
+          Process <strong style={{ color: "green" }}>{p.name}</strong> is selected (shortest burst among arrived) and executed from t={p.startTime} to t={p.endTime} (Burst Time = {p.endTime - p.startTime}).
+        </span>
+      );
+    });
 
-        {/* Ready Queue (Arrived Processes) */}
-        <div className="w-full bg-black p-4 rounded-lg border border-white">
-          <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Ready Queue (Sorting by Burst Time)</h3>
-          <div className="flex flex-wrap gap-4 justify-center">
-            {arrivedQueue.map((p) => (
-              <div
-                key={p.name}
-                className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
-                  fadeOutProcess === p.name
-                    ? "opacity-0 scale-75 transform translate-y-4"
-                    : currentProcess && currentProcess.name === p.name
-                      ? "scale-110 border-yellow-500 border-2 bg-yellow-900 bg-opacity-30"
-                      : comparingProcess && comparingProcess.name === p.name
-                        ? "scale-105 border-red-500 border-2 bg-red-900 bg-opacity-30"
-                        : highlightNewArrivals.includes(p.name)
-                          ? "scale-110 border-green-500 border-2 animate-pulse"
-                          : "border-white"
-                }`}
-                style={{
-                  borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`,
-                  transition: highlightNewArrivals.includes(p.name) 
-                    ? "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)" 
-                    : "all 0.3s ease-in-out"
-                }}
-              >
-                <p className="font-bold text-lg">{p.name}</p>
-                <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
-                  <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                  <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
-                </div>
-              </div>
-            ))}
-            {arrivedQueue.length === 0 && (
-              <p className="text-gray-400 italic">No processes in ready queue</p>
-            )}
-          </div>
-        </div>
+    newInstr.push(
+      <span key="end">
+        Finally, construct the Gantt chart based on the above execution order.
+      </span>
+    );
 
-        {/* Completed Processes */}
-        <div className="w-full bg-black p-4 rounded-lg border border-white">
-          <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Completed Processes</h3>
-          <div className="flex flex-wrap gap-4 justify-center">
-            {completedProcesses.map((p) => (
-              <div
-                key={p.name}
-                className="p-4 rounded-lg border border-white text-center w-32 animate-fadeIn transition-all duration-500"
-                style={{ 
-                  borderLeftColor: processColors[p.name] || "#3498db",
-                  borderLeftWidth: "5px"
-                }}
-              >
-                <p className="font-bold text-lg">{p.name}</p>
-                <p className="text-sm mt-1">Completed</p>
-              </div>
-            ))}
-            {completedProcesses.length === 0 && (
-              <p className="text-gray-400 italic">No completed processes</p>
-            )}
-          </div>
-        </div>
-      </div>
+    setInstructions(newInstr);
+  }, [ganttChart]);
 
-      {/* Gantt Chart */}
-      <div className="w-full bg-black p-4 rounded-lg border border-white">
-        <h3 className="text-lg font-semibold mb-4 border-b border-white pb-2">Gantt Chart</h3>
-        
-        {ganttChart.length > 0 ? (
-          <div className="relative">
-            {/* Time Axis */}
-            <div className="absolute left-0 right-0 bottom-0 h-8 border-t border-white"></div>
+  
+
+
+
+  return (
+    <div className="flex">
+
+      {/* Left: Simulation Visualization */}
+      <div className="w-3/4 pr-4 mt-10 mb-10 flex flex-col items-center p-6 bg-sky-400/50 rounded-lg border border-white text-white min-w-[60vw] mx-auto">
+        {/* <div className="flex flex-col items-center p-6 bg-black rounded-lg border border-white text-white min-w-[80vw] mx-auto"> */}
+          <h2 className="text-2xl font-bold mb-6">SJF Scheduling Visualization</h2>
+
+          <div className="w-full flex justify-between items-center mb-8">
+            <button
+              onClick={startSimulation}
+              disabled={isSimulating}
+              className={`px-6 py-3 rounded-lg border border-white font-bold transition-all duration-300 ${
+                isSimulating 
+                  ? "bg-gray-800 text-gray-400 cursor-not-allowed" 
+                  : "bg-black text-white hover:bg-gray-900"
+              }`}
+            >
+              {isSimulating ? "Simulation in Progress..." : "Start SJF Simulation"}
+            </button>
             
-            {/* Process Blocks */}
-            <div className="flex h-20 mb-12 relative">
-              {ganttChart.map((p, index) => {
-                // Calculate previous process end time
-                const prevEndTime = index > 0 ? ganttChart[index - 1].endTime : 0;
-                
-                // Calculate idle time gap if any
-                const idleTime = p.startTime - prevEndTime;
-                
-                // Calculate total timeline length for scaling
-                const totalTime = ganttChart[ganttChart.length - 1].endTime;
-                
-                // Calculate widths as percentages of total time
-                const idleWidth = (idleTime / totalTime) * 100;
-                const processWidth = ((p.endTime - p.startTime) / totalTime) * 100;
-                
-                return (
-                  <div key={p.name} className="flex h-full group">
-                    {/* Idle time block */}
-                    {idleTime > 0 && (
-                      <div 
-                        className="h-full flex items-center justify-center bg-gray-900 border-r border-white bg-opacity-50 transition-all duration-300"
-                        style={{ 
-                          width: `${idleWidth}%`,
-                          minWidth: idleTime > 0 ? '30px' : '0'
-                        }}
-                      >
-                        <span className="text-gray-300 text-xs font-medium">Idle</span>
-                      </div>
-                    )}
-                    
-                    {/* Process block with gap */}
-                    <div className="relative h-full px-1">
-                      {/* Process box */}
-                      <div
-                        className="h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105 animate-fadeIn"
-                        style={{
-                          width: `${processWidth}%`,
-                          backgroundColor: processColors[p.name] || "#3498db",
-                          minWidth: '50px',
-                          animationDelay: `${index * 0.2}s`
-                        }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <span className="text-sm font-bold">{p.name}</span>
-                          <span className="text-xs">{p.endTime - p.startTime}u</span>
-                        </div>
-                      </div>
-                      
-                      {/* Vertical timeline connector */}
-                      <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-gray-600 transform -translate-x-1/2"></div>
-                      
-                      {/* Time labels with improved positioning */}
-                      <div className="absolute left-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform -translate-x-1/2">
-                        {p.startTime}
-                      </div>
-                      
-                      {index === ganttChart.length - 1 && (
-                        <div className="absolute right-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform translate-x-1/2">
-                          {p.endTime}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Timeline base */}
-              <div className="absolute left-0 right-0 -bottom-8 h-px bg-gray-500"></div>
+            {/* Animation Speed Control */}
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-medium">Animation Speed:</span>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => setAnimationSpeed(0.5)} 
+                  className={`px-3 py-1 rounded border transition-all duration-300 ${
+                    animationSpeed === 0.5 ? "bg-white text-black" : "bg-black text-white"
+                  }`}
+                  disabled={isSimulating && !animatingTimeJump}
+                >
+                  0.5x
+                </button>
+                <button 
+                  onClick={() => setAnimationSpeed(1)} 
+                  className={`px-3 py-1 rounded border transition-all duration-300 ${
+                    animationSpeed === 1 ? "bg-white text-black" : "bg-black text-white"
+                  }`}
+                  disabled={isSimulating && !animatingTimeJump}
+                >
+                  1x
+                </button>
+                <button 
+                  onClick={() => setAnimationSpeed(2)} 
+                  className={`px-3 py-1 rounded border transition-all duration-300 ${
+                    animationSpeed === 2 ? "bg-white text-black" : "bg-black text-white"
+                  }`}
+                  disabled={isSimulating && !animatingTimeJump}
+                >
+                  2x
+                </button>
+              </div>
             </div>
           </div>
-        ) : (
-          <p className="text-gray-400 italic text-center py-8">Gantt chart will appear here after simulation starts</p>
-        )}
-      </div>
 
-      {/* Metrics Table (when simulation completes) */}
-      {completedProcesses.length > 0 && completedProcesses.length === processes.length && (
-        <div className="w-full bg-black p-4 rounded-lg border border-white mt-8 animate-fadeIn">
-          <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Performance Metrics</h3>
-          
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-black">
-              <thead>
-                <tr className="bg-gray-900">
-                  <th className="py-2 px-4 border border-white">Process</th>
-                  <th className="py-2 px-4 border border-white">Arrival Time</th>
-                  <th className="py-2 px-4 border border-white">Burst Time</th>
-                  <th className="py-2 px-4 border border-white">Start Time</th>
-                  <th className="py-2 px-4 border border-white">Completion Time</th>
-                  <th className="py-2 px-4 border border-white">Turnaround Time</th>
-                  <th className="py-2 px-4 border border-white">Waiting Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ganttChart.map((p, index) => {
-                  const turnaroundTime = p.endTime - parseInt(p.arrivalTime);
-                  const waitingTime = p.startTime - parseInt(p.arrivalTime);
-                  
-                  return (
-                    <tr 
-                      key={p.name} 
-                      className="transition-all duration-300 animate-fadeIn"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <td className="py-2 px-4 border border-white font-medium" style={{color: processColors[p.name] || "#3498db"}}>{p.name}</td>
-                      <td className="py-2 px-4 border border-white text-center">{p.arrivalTime}</td>
-                      <td className="py-2 px-4 border border-white text-center">{p.burstTime}</td>
-                      <td className="py-2 px-4 border border-white text-center">{p.startTime}</td>
-                      <td className="py-2 px-4 border border-white text-center">{p.endTime}</td>
-                      <td className="py-2 px-4 border border-white text-center">{turnaroundTime}</td>
-                      <td className="py-2 px-4 border border-white text-center">{waitingTime}</td>
-                    </tr>
-                  );
-                })}
-                
-                {/* Average metrics row */}
-                {ganttChart.length > 0 && (
-                  <tr className="bg-gray-900 font-semibold animate-fadeIn" style={{ animationDelay: '0.5s' }}>
-                    <td className="py-2 px-4 border border-white text-right" colSpan="5">Average</td>
-                    <td className="py-2 px-4 border border-white text-center">
-                      {(ganttChart.reduce((sum, p) => sum + (p.endTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
-                    </td>
-                    <td className="py-2 px-4 border border-white text-center">
-                      {(ganttChart.reduce((sum, p) => sum + (p.startTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          {/* Current Time Display */}
+          <div className="w-full mb-6 text-center">
+            <div className="inline-block px-4 py-2 bg-black text-white rounded-lg border border-white overflow-hidden relative">
+              <span className="font-semibold">Current Time:</span> 
+              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-yellow-400" : ""}`}>
+                {currentTime}
+              </span>
+              {animatingTimeJump && (
+                <span className="text-xs text-yellow-400 ml-2">
+                  → {timeJumpTarget}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Add CSS animations to <style> */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-        
-        @keyframes pulse {
-          0% { opacity: 1; }
-          50% { opacity: 0.6; }
-          100% { opacity: 1; }
-        }
-        
-        .animate-pulse {
-          animation: pulse 1s infinite;
-        }
-      `}</style>
+          {/* Process Queue Visualization */}
+          <div className="w-full flex flex-col gap-8 mb-8">
+            {/* Not Yet Arrived Processes */}
+            <div className="w-full bg-black p-4 rounded-lg border border-white">
+              <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Not Yet Arrived</h3>
+              <div className="flex flex-wrap gap-4 justify-center">
+                {pendingProcesses.map((p) => (
+                  <div
+                    key={p.name}
+                    className="p-4 rounded-lg border border-white text-center w-32 transition-all duration-500"
+                    style={{
+                      borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`
+                    }}
+                  >
+                    <p className="font-bold text-lg">{p.name}</p>
+                    <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
+                      <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
+                      <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
+                    </div>
+                  </div>
+                ))}
+                {pendingProcesses.length === 0 && (
+                  <p className="text-gray-400 italic">All processes have arrived</p>
+                )}
+              </div>
+            </div>
+
+            {/* Ready Queue (Arrived Processes) */}
+            <div className="w-full bg-black p-4 rounded-lg border border-white">
+              <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Ready Queue (Sorting by Burst Time)</h3>
+              <div className="flex flex-wrap gap-4 justify-center">
+                {arrivedQueue.map((p) => (
+                  <div
+                    key={p.name}
+                    className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
+                      fadeOutProcess === p.name
+                        ? "opacity-0 scale-75 transform translate-y-4"
+                        : currentProcess && currentProcess.name === p.name
+                          ? "scale-110 border-yellow-500 border-2 bg-yellow-900 bg-opacity-30"
+                          : comparingProcess && comparingProcess.name === p.name
+                            ? "scale-105 border-red-500 border-2 bg-red-900 bg-opacity-30"
+                            : highlightNewArrivals.includes(p.name)
+                              ? "scale-110 border-green-500 border-2 animate-pulse"
+                              : "border-white"
+                    }`}
+                    style={{
+                      borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`,
+                      transition: highlightNewArrivals.includes(p.name) 
+                        ? "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)" 
+                        : "all 0.3s ease-in-out"
+                    }}
+                  >
+                    <p className="font-bold text-lg">{p.name}</p>
+                    <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
+                      <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
+                      <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
+                    </div>
+                  </div>
+                ))}
+                {arrivedQueue.length === 0 && (
+                  <p className="text-gray-400 italic">No processes in ready queue</p>
+                )}
+              </div>
+            </div>
+
+            {/* Completed Processes */}
+            <div className="w-full bg-black p-4 rounded-lg border border-white">
+              <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Completed Processes</h3>
+              <div className="flex flex-wrap gap-4 justify-center">
+                {completedProcesses.map((p) => (
+                  <div
+                    key={p.name}
+                    className="p-4 rounded-lg border border-white text-center w-32 animate-fadeIn transition-all duration-500"
+                    style={{ 
+                      borderLeftColor: processColors[p.name] || "#3498db",
+                      borderLeftWidth: "5px"
+                    }}
+                  >
+                    <p className="font-bold text-lg">{p.name}</p>
+                    <p className="text-sm mt-1">Completed</p>
+                  </div>
+                ))}
+                {completedProcesses.length === 0 && (
+                  <p className="text-gray-400 italic">No completed processes</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Gantt Chart */}
+          <div className="w-full bg-black p-4 rounded-lg border border-white">
+            <h3 className="text-lg font-semibold mb-4 border-b border-white pb-2">Gantt Chart</h3>
+            
+            {ganttChart.length > 0 ? (
+              <div className="relative">
+                {/* Time Axis */}
+                <div className="absolute left-0 right-0 bottom-0 h-8 border-t border-white"></div>
+                
+                {/* Process Blocks */}
+                <div className="flex h-20 mb-12 relative">
+                  {ganttChart.map((p, index) => {
+                    // Calculate previous process end time
+                    const prevEndTime = index > 0 ? ganttChart[index - 1].endTime : 0;
+                    
+                    // Calculate idle time gap if any
+                    const idleTime = p.startTime - prevEndTime;
+                    
+                    // Calculate total timeline length for scaling
+                    const totalTime = ganttChart[ganttChart.length - 1].endTime;
+                    
+                    // Calculate widths as percentages of total time
+                    const idleWidth = (idleTime / totalTime) * 100;
+                    const processWidth = ((p.endTime - p.startTime) / totalTime) * 100;
+                    
+                    return (
+                      <div key={p.name} className="flex h-full group">
+                        {/* Idle time block */}
+                        {idleTime > 0 && (
+                          <div 
+                            className="h-full flex items-center justify-center bg-gray-900 border-r border-white bg-opacity-50 transition-all duration-300"
+                            style={{ 
+                              width: `${idleWidth}%`,
+                              minWidth: idleTime > 0 ? '30px' : '0'
+                            }}
+                          >
+                            <span className="text-gray-300 text-xs font-medium">Idle</span>
+                          </div>
+                        )}
+                        
+                        {/* Process block with gap */}
+                        <div className="relative h-full px-1">
+                          {/* Process box */}
+                          <div
+                            className="h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105 animate-fadeIn"
+                            style={{
+                              width: `${processWidth}%`,
+                              backgroundColor: processColors[p.name] || "#3498db",
+                              minWidth: '50px',
+                              animationDelay: `${index * 0.2}s`
+                            }}
+                          >
+                            <div className="flex flex-col items-center">
+                              <span className="text-sm font-bold">{p.name}</span>
+                              <span className="text-xs">{p.endTime - p.startTime}u</span>
+                            </div>
+                          </div>
+                          
+                          {/* Vertical timeline connector */}
+                          <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-gray-600 transform -translate-x-1/2"></div>
+                          
+                          {/* Time labels with improved positioning */}
+                          <div className="absolute left-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform -translate-x-1/2">
+                            {p.startTime}
+                          </div>
+                          
+                          {index === ganttChart.length - 1 && (
+                            <div className="absolute right-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform translate-x-1/2">
+                              {p.endTime}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Timeline base */}
+                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-gray-500"></div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-400 italic text-center py-8">Gantt chart will appear here after simulation starts</p>
+            )}
+          </div>
+
+          {/* Metrics Table (when simulation completes) */}
+          {completedProcesses.length > 0 && completedProcesses.length === processes.length && (
+            <div className="w-full bg-black p-4 rounded-lg border border-white mt-8 animate-fadeIn">
+              <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Performance Metrics</h3>
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-black">
+                  <thead>
+                    <tr className="bg-gray-900">
+                      <th className="py-2 px-4 border border-white">Process</th>
+                      <th className="py-2 px-4 border border-white">Arrival Time</th>
+                      <th className="py-2 px-4 border border-white">Burst Time</th>
+                      <th className="py-2 px-4 border border-white">Start Time</th>
+                      <th className="py-2 px-4 border border-white">Completion Time</th>
+                      <th className="py-2 px-4 border border-white">Turnaround Time</th>
+                      <th className="py-2 px-4 border border-white">Waiting Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ganttChart.map((p, index) => {
+                      const turnaroundTime = p.endTime - parseInt(p.arrivalTime);
+                      const waitingTime = p.startTime - parseInt(p.arrivalTime);
+                      
+                      return (
+                        <tr 
+                          key={p.name} 
+                          className="transition-all duration-300 animate-fadeIn"
+                          style={{ animationDelay: `${index * 0.1}s` }}
+                        >
+                          <td className="py-2 px-4 border border-white font-medium" style={{color: processColors[p.name] || "#3498db"}}>{p.name}</td>
+                          <td className="py-2 px-4 border border-white text-center">{p.arrivalTime}</td>
+                          <td className="py-2 px-4 border border-white text-center">{p.burstTime}</td>
+                          <td className="py-2 px-4 border border-white text-center">{p.startTime}</td>
+                          <td className="py-2 px-4 border border-white text-center">{p.endTime}</td>
+                          <td className="py-2 px-4 border border-white text-center">{turnaroundTime}</td>
+                          <td className="py-2 px-4 border border-white text-center">{waitingTime}</td>
+                        </tr>
+                      );
+                    })}
+                    
+                    {/* Average metrics row */}
+                    {ganttChart.length > 0 && (
+                      <tr className="bg-gray-900 font-semibold animate-fadeIn" style={{ animationDelay: '0.5s' }}>
+                        <td className="py-2 px-4 border border-white text-right" colSpan="5">Average</td>
+                        <td className="py-2 px-4 border border-white text-center">
+                          {(ganttChart.reduce((sum, p) => sum + (p.endTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
+                        </td>
+                        <td className="py-2 px-4 border border-white text-center">
+                          {(ganttChart.reduce((sum, p) => sum + (p.startTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Add CSS animations to <style> */}
+          <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .animate-fadeIn {
+              animation: fadeIn 0.5s ease-out forwards;
+            }
+            
+            @keyframes pulse {
+              0% { opacity: 1; }
+              50% { opacity: 0.6; }
+              100% { opacity: 1; }
+            }
+            
+            .animate-pulse {
+              animation: pulse 1s infinite;
+            }
+          `}</style>
+        {/* </div> */}
+      </div>
+      
+      {/* Right: Process Details */}
+      <div className="w-1/4 min-w-[30vw] pr-4 ml-5 my-10">
+        {/* sticky rail */}
+        <div className="
+            sticky top-4        /* stays 16 px from top while scrolling */
+            border border-white rounded-lg
+            bg-sky-400/50 text-white
+            p-6 h-[80vh]      /* gives it a tall box   */
+            /*flex flex-col justify-center items-center*/
+            
+            overflow-y-auto    /* scrolls if content overflows */
+          ">
+          
+          <h2 className="text-lg font-semibold mb-4 text-center">STEP-BY-STEP INSTRUCTION</h2>
+
+          <ol className="space-y-2 list-decimal list-inside text-sm font-medium text-lg">
+            {instructions.map((txt, idx) => (
+              <li key={idx} className="leading-snug">
+                {txt}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
     </div>
   );
 };

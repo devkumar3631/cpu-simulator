@@ -48,10 +48,10 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
       return;
     }
 
-    if (["RR", "MLFQ"].includes(algorithm) && (isNaN(timeQuantum) || timeQuantum <= 0)) {
-      toast.error("Time Quantum must be greater than 0!", { position: "top-right", autoClose: 2000 });
-      return;
-    }
+    // if (["RR", "MLFQ"].includes(algorithm) && (isNaN(timeQuantum) || timeQuantum <= 0)) {
+    //   toast.error("Time Quantum must be greater than 0!", { position: "top-right", autoClose: 2000 });
+    //   return;
+    // }
 
     // Add the process with trimmed name
     addProcess({ ...process, name: trimmedName });
@@ -69,7 +69,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 mb-10 border border-white rounded-lg shadow-md transition-all bg-sky-400/50 text-white">
+    <form onSubmit={handleSubmit} className="p-6 mb-10 border border-white rounded-lg shadow-md transition-all bg-violet-400 text-white">
       <h2 className="text-2xl font-semibold mb-4 text-center">Add a Process</h2>
 
       <div className="flex flex-col gap-4 justify-center">
@@ -142,7 +142,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
       {/* Submit Button */}
       <button
         type="submit"
-        className="mt-4 p-3 bg-white text-black rounded hover:bg-rose-300 hover:text-white transition-all flex items-center gap-2 mx-auto border border-white"
+        className="mt-4 p-3 bg-white text-black rounded hover:bg-blue-400/70 hover:text-white transition-all flex items-center gap-2 mx-auto border border-white"
       >
         Add Process
       </button>

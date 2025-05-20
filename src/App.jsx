@@ -9,7 +9,7 @@ function App() {
   }, []);
   return (
     <div className="bg-dark">
-        <div className="m-auto p-6 bg-pink-200">
+        <div className="m-auto p-6 bg-orange-300/70">
         <Scheduler />
         </div>
         {/* <GitHubFooter /> */}
