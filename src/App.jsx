@@ -1,19 +1,19 @@
-import { useEffect } from "react";
+import Rect from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+//import FrontPage from "./pages/FrontPage";
 import Scheduler from "./components/Scheduler";
-import GitHubFooter from "./components/GitHubFooter";
-import "./App.css";
+//import DiskSimulator from "./components/DiskSimulator";
+import FrontPage from "./components/Frontpage";
 
 function App() {
-  useEffect(() => {
-    document.title = "CPU Scheduler";
-  }, []);
   return (
-    <div className="bg-dark">
-        <div className="m-auto p-6 bg-orange-300/70">
-        <Scheduler />
-        </div>
-        {/* <GitHubFooter /> */}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<FrontPage />} />
+        <Route path="/cpu-scheduling" element={<Scheduler />} /> 
+        {/* <Route path="/disk-simulator" element={<DiskSimulator />} />  */}
+      </Routes>
+    </Router>
   );
 }
 

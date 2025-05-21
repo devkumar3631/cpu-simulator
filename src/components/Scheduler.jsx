@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import ProcessForm from "./ProcessForm";
-import SRJF from "./SRJF";
-import FCFS from "./FCFS";
+import ProcessForm from "./ProcessForm.jsx";
+import SRJF from "./SRJF.jsx";
+import FCFS from "./FCFS.jsx";
 import RR from "./RR.jsx";
 import PriorityNonPreemptive from "./PriorityNonPreemptive.jsx";
-import PriorityScheduling from "./PriorityScheduling";
-import ProcessDetails from "./ProcessDetails";
+import PriorityScheduling from "./PriorityScheduling.jsx";
+import ProcessDetails from "./ProcessDetails.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import SJF from "./SJF";
+import SJF from "./SJF.jsx";
 
 const Scheduler = () => {
 
@@ -153,7 +153,7 @@ const Scheduler = () => {
   return (
     <div className="flex flex-col items-center min-h-screen bg-orange-200/70   text-white transition-all p-6">
       <ToastContainer />
-
+      
       {/* Title */}
       <div className="w-full max-w-6xl text-center text-black py-8 mb-6 border-b border-gray-700 font-poppins">
         <h1 className="text-6xl font-bold">CPU SCHEDULING SIMULATOR</h1>
