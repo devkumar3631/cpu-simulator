@@ -110,7 +110,7 @@ const ProcessForm = ({ processes, addProcess, algorithm }) => {
             min="0"
             value={process.priority}
             onChange={(e) => setProcess({ ...process, priority: e.target.value })}
-            className="border p-3 rounded bg-black text-white w-full mt-1"
+            className="border p-3 rounded bg-white text-black w-full mt-1"
           />
         )}
 

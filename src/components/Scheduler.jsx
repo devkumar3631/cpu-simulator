@@ -115,10 +115,10 @@ const Scheduler = () => {
           <li>Non-preemptive: A running process cannot be interrupted.</li>
           <li>If two processes have the same priority, FCFS order is followed.</li>
           <li>Simple to implement but may lead to starvation of low-priority processes.</li>
+          
         </ul>
         <p className="mt-3">
-          <strong>Note:</strong> Techniques like aging (gradually increasing the priority of waiting processes)
-          can help prevent starvation.
+          <strong>Note: Lower the priority value means higher the priority</strong>
         </p>
       </div>
     </>
@@ -139,6 +139,9 @@ const Scheduler = () => {
           <li>More dynamic and responsive than the non-preemptive version.</li>
           <li>Risk of starvation for lower-priority processes, which can be mitigated using aging.</li>
         </ul>
+        <p className="mt-3">
+          <strong>Note: Lower the priority value means higher the priority</strong>
+        </p>
       </div>
     </>
   ),

@@ -241,10 +241,6 @@ const SJF = ({ processes }) => {
     setInstructions(newInstr);
   }, [ganttChart]);
 
-  
-
-
-
   return (
     <div className="flex">
 
@@ -259,8 +255,8 @@ const SJF = ({ processes }) => {
               disabled={isSimulating}
               className={`px-6 py-3 rounded-lg border border-white font-bold transition-all duration-300 ${
                 isSimulating 
-                  ? "bg-gray-800 text-gray-400 cursor-not-allowed" 
-                  : "bg-black text-white hover:bg-gray-900"
+                  ? "bg-lime-400/50 text-white cursor-not-allowed" 
+                  : "bg-red-400 text-white hover:bg-red-300"
               }`}
             >
               {isSimulating ? "Simulation in Progress..." : "Start SJF Simulation"}
@@ -273,7 +269,7 @@ const SJF = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(0.5)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 0.5 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 0.5 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -282,7 +278,7 @@ const SJF = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(1)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 1 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 1 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -291,7 +287,7 @@ const SJF = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(2)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 2 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 2 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -303,13 +299,13 @@ const SJF = ({ processes }) => {
 
           {/* Current Time Display */}
           <div className="w-full mb-6 text-center">
-            <div className="inline-block px-4 py-2 bg-black text-white rounded-lg border border-white overflow-hidden relative">
+            <div className="inline-block px-4 py-2 bg-purple-400/50 text-white rounded-lg border border-white overflow-hidden relative">
               <span className="font-semibold">Current Time:</span> 
-              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-yellow-400" : ""}`}>
+              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-white" : ""}`}>
                 {currentTime}
               </span>
               {animatingTimeJump && (
-                <span className="text-xs text-yellow-400 ml-2">
+                <span className="text-xs text-white ml-2">
                   → {timeJumpTarget}
                 </span>
               )}
@@ -319,44 +315,44 @@ const SJF = ({ processes }) => {
           {/* Process Queue Visualization */}
           <div className="w-full flex flex-col gap-8 mb-8">
             {/* Not Yet Arrived Processes */}
-            <div className="w-full bg-black p-4 rounded-lg border border-white">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Not Yet Arrived</h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 {pendingProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className="p-4 rounded-lg border border-white text-center w-32 transition-all duration-500"
+                    className="p-4 rounded-lg  bg-yellow-300 border border-white text-center w-32 transition-all duration-500"
                     style={{
                       borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`
                     }}
                   >
                     <p className="font-bold text-lg">{p.name}</p>
                     <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
-                      <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                      <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Arrival: {p.arrivalTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Burst: {p.burstTime}</p>
                     </div>
                   </div>
                 ))}
                 {pendingProcesses.length === 0 && (
-                  <p className="text-gray-400 italic">All processes have arrived</p>
+                  <p className="text-white-400 italic">All processes have arrived</p>
                 )}
               </div>
             </div>
 
             {/* Ready Queue (Arrived Processes) */}
-            <div className="w-full bg-black p-4 rounded-lg border border-white">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Ready Queue (Sorting by Burst Time)</h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 {arrivedQueue.map((p) => (
                   <div
                     key={p.name}
-                    className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
+                    className={`p-4 rounded-lg  bg-orange-300 border text-center transition-all duration-500 w-32 ${
                       fadeOutProcess === p.name
                         ? "opacity-0 scale-75 transform translate-y-4"
                         : currentProcess && currentProcess.name === p.name
-                          ? "scale-110 border-yellow-500 border-2 bg-yellow-900 bg-opacity-30"
+                          ? "scale-110 border-yellow-500 border-2 bg-amber-500/[70.9%]  text-black bg-opacity-30"
                           : comparingProcess && comparingProcess.name === p.name
-                            ? "scale-105 border-red-500 border-2 bg-red-900 bg-opacity-30"
+                            ? "scale-105 border-red-500 border-2 bg-orange-300  text-black bg-opacity-30"
                             : highlightNewArrivals.includes(p.name)
                               ? "scale-110 border-green-500 border-2 animate-pulse"
                               : "border-white"
@@ -370,8 +366,8 @@ const SJF = ({ processes }) => {
                   >
                     <p className="font-bold text-lg">{p.name}</p>
                     <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
-                      <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                      <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Arrival: {p.arrivalTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Burst: {p.burstTime}</p>
                     </div>
                   </div>
                 ))}
@@ -382,13 +378,13 @@ const SJF = ({ processes }) => {
             </div>
 
             {/* Completed Processes */}
-            <div className="w-full bg-black p-4 rounded-lg border border-white">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Completed Processes</h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 {completedProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className="p-4 rounded-lg border border-white text-center w-32 animate-fadeIn transition-all duration-500"
+                    className="p-4 rounded-lg border border-white text-center w-32 animate-fadeIn bg-lime-300 text-black transition-all duration-500"
                     style={{ 
                       borderLeftColor: processColors[p.name] || "#3498db",
                       borderLeftWidth: "5px"
@@ -406,7 +402,7 @@ const SJF = ({ processes }) => {
           </div>
 
           {/* Gantt Chart */}
-          <div className="w-full bg-black p-4 rounded-lg border border-white">
+          <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
             <h3 className="text-lg font-semibold mb-4 border-b border-white pb-2">Gantt Chart</h3>
             
             {ganttChart.length > 0 ? (
@@ -435,13 +431,13 @@ const SJF = ({ processes }) => {
                         {/* Idle time block */}
                         {idleTime > 0 && (
                           <div 
-                            className="h-full flex items-center justify-center bg-gray-900 border-r border-white bg-opacity-50 transition-all duration-300"
+                            className="h-full flex items-center justify-center bg-purple-400/30 border-r border-white"
                             style={{ 
                               width: `${idleWidth}%`,
                               minWidth: idleTime > 0 ? '30px' : '0'
                             }}
                           >
-                            <span className="text-gray-300 text-xs font-medium">Idle</span>
+                            <span className="text-white-300 text-xs font-medium">Idle</span>
                           </div>
                         )}
                         
@@ -449,30 +445,29 @@ const SJF = ({ processes }) => {
                         <div className="relative h-full px-1">
                           {/* Process box */}
                           <div
-                            className="h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105 animate-fadeIn"
+                            className="h-4/5 mt-2 flex items-center justify-center bg-yellow-300 text-black font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105"
                             style={{
                               width: `${processWidth}%`,
-                              backgroundColor: processColors[p.name] || "#3498db",
-                              minWidth: '50px',
-                              animationDelay: `${index * 0.2}s`
+                              // backgroundColor: processColors[p.name] || "#3498db",
+                              minWidth: '50px'
                             }}
                           >
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col items-center text-black">
                               <span className="text-sm font-bold">{p.name}</span>
-                              <span className="text-xs">{p.endTime - p.startTime}u</span>
+                              <span className="text-xs ">{p.endTime - p.startTime}u</span>
                             </div>
                           </div>
                           
                           {/* Vertical timeline connector */}
-                          <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-gray-600 transform -translate-x-1/2"></div>
+                          <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-white transform -translate-x-1/2"></div>
                           
                           {/* Time labels with improved positioning */}
-                          <div className="absolute left-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform -translate-x-1/2">
+                          <div className="absolute left-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform -translate-x-1/2">
                             {p.startTime}
                           </div>
                           
                           {index === ganttChart.length - 1 && (
-                            <div className="absolute right-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform translate-x-1/2">
+                            <div className="absolute right-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform translate-x-1/2">
                               {p.endTime}
                             </div>
                           )}
@@ -480,9 +475,9 @@ const SJF = ({ processes }) => {
                       </div>
                     );
                   })}
-
+                  
                   {/* Timeline base */}
-                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-gray-500"></div>
+                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-white"></div>
                 </div>
               </div>
             ) : (
@@ -492,13 +487,13 @@ const SJF = ({ processes }) => {
 
           {/* Metrics Table (when simulation completes) */}
           {completedProcesses.length > 0 && completedProcesses.length === processes.length && (
-            <div className="w-full bg-black p-4 rounded-lg border border-white mt-8 animate-fadeIn">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white mt-8">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Performance Metrics</h3>
               
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-black">
+                <table className="min-w-full bg-rose-400/50 text-white">
                   <thead>
-                    <tr className="bg-gray-900">
+                    <tr className="">
                       <th className="py-2 px-4 border border-white">Process</th>
                       <th className="py-2 px-4 border border-white">Arrival Time</th>
                       <th className="py-2 px-4 border border-white">Burst Time</th>
@@ -509,17 +504,13 @@ const SJF = ({ processes }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {ganttChart.map((p, index) => {
+                    {ganttChart.map(p => {
                       const turnaroundTime = p.endTime - parseInt(p.arrivalTime);
                       const waitingTime = p.startTime - parseInt(p.arrivalTime);
                       
                       return (
-                        <tr 
-                          key={p.name} 
-                          className="transition-all duration-300 animate-fadeIn"
-                          style={{ animationDelay: `${index * 0.1}s` }}
-                        >
-                          <td className="py-2 px-4 border border-white font-medium" style={{color: processColors[p.name] || "#3498db"}}>{p.name}</td>
+                        <tr key={p.name}>
+                          <td className="py-2 px-4 border border-white font-medium ">{p.name}</td>
                           <td className="py-2 px-4 border border-white text-center">{p.arrivalTime}</td>
                           <td className="py-2 px-4 border border-white text-center">{p.burstTime}</td>
                           <td className="py-2 px-4 border border-white text-center">{p.startTime}</td>
@@ -531,8 +522,8 @@ const SJF = ({ processes }) => {
                     })}
                     
                     {/* Average metrics row */}
-                    {ganttChart.length > 0 && (
-                      <tr className="bg-gray-900 font-semibold animate-fadeIn" style={{ animationDelay: '0.5s' }}>
+                    {/* {ganttChart.length > 0 && (
+                      <tr className="bg-gray-900 font-semibold">
                         <td className="py-2 px-4 border border-white text-right" colSpan="5">Average</td>
                         <td className="py-2 px-4 border border-white text-center">
                           {(ganttChart.reduce((sum, p) => sum + (p.endTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
@@ -541,9 +532,14 @@ const SJF = ({ processes }) => {
                           {(ganttChart.reduce((sum, p) => sum + (p.startTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}
                         </td>
                       </tr>
-                    )}
+                    )} */}
                   </tbody>
                 </table>
+              </div>
+
+              <div className="mt-4">
+                <p>Average turn around time : {(ganttChart.reduce((sum, p) => sum + (p.endTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}</p>
+                <p>Average waiting time : {(ganttChart.reduce((sum, p) => sum + (p.startTime - parseInt(p.arrivalTime)), 0) / ganttChart.length).toFixed(2)}</p>
               </div>
             </div>
           )}
@@ -589,7 +585,7 @@ const SJF = ({ processes }) => {
 
           <ol className="space-y-2 list-decimal list-inside text-sm font-medium text-lg">
             {instructions.map((txt, idx) => (
-              <li key={idx} className="leading-snug">
+              <li key={idx} className="leading-snug text-lg">
                 {txt}
               </li>
             ))}

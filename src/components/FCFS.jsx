@@ -180,7 +180,7 @@ const FCFS = ({ processes }) => {
 
       newInstr.push(
         <span key={`exec-${i}`}>
-           Process <strong style={{ color: "blue" }}>{p.name}</strong> is executed from t={p.startTime} to t={p.endTime} (Burst Time = {p.endTime - p.startTime}).
+           Process <strong style={{ color: "green" }}>{p.name}</strong> is executed from t={p.startTime} to t={p.endTime} (Burst Time = {p.endTime - p.startTime}).
         </span>
       );
     });

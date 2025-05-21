@@ -316,8 +316,8 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
               disabled={isSimulating}
               className={`px-6 py-3 rounded-lg border border-white font-bold transition-all duration-300 ${
                 isSimulating 
-                  ? "bg-gray-800 text-gray-400 cursor-not-allowed" 
-                  : "bg-black text-white hover:bg-gray-900"
+                  ? "bg-lime-400/50 text-white cursor-not-allowed" 
+                  : "bg-red-400 text-white hover:bg-red-300"
               }`}
             >
               {isSimulating ? "Simulation in Progress..." : "Start Round Robin Simulation"}
@@ -334,71 +334,71 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
                 value={timeQuantum}
                 onChange={(e) => timeQuantum = parseInt(e.target.value)}
                 disabled={isSimulating}
-                className="w-16 px-2 py-1 bg-black text-white border border-white rounded text-center"
+                className="w-16 px-2 py-1 bg-purple-400/50 text-white border border-white rounded text-center"
               />
             </div>
           </div>
           
           {/* Animation Speed Control */}
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium">Animation Speed:</span>
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => setAnimationSpeed(0.5)} 
-                className={`px-3 py-1 rounded border transition-all duration-300 ${
-                  animationSpeed === 0.5 ? "bg-white text-black" : "bg-black text-white"
-                }`}
-                disabled={isSimulating && !animatingTimeJump}
-              >
-                0.5x
-              </button>
-              <button 
-                onClick={() => setAnimationSpeed(1)} 
-                className={`px-3 py-1 rounded border transition-all duration-300 ${
-                  animationSpeed === 1 ? "bg-white text-black" : "bg-black text-white"
-                }`}
-                disabled={isSimulating && !animatingTimeJump}
-              >
-                1x
-              </button>
-              <button 
-                onClick={() => setAnimationSpeed(2)} 
-                className={`px-3 py-1 rounded border transition-all duration-300 ${
-                  animationSpeed === 2 ? "bg-white text-black" : "bg-black text-white"
-                }`}
-                disabled={isSimulating && !animatingTimeJump}
-              >
-                2x
-              </button>
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-medium">Animation Speed:</span>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => setAnimationSpeed(0.5)} 
+                  className={`px-3 py-1 rounded border transition-all duration-300 ${
+                    animationSpeed === 0.5 ? "bg-purple-400/50 text-white" : "bg-white text-black"
+                  }`}
+                  disabled={isSimulating && !animatingTimeJump}
+                >
+                  0.5x
+                </button>
+                <button 
+                  onClick={() => setAnimationSpeed(1)} 
+                  className={`px-3 py-1 rounded border transition-all duration-300 ${
+                    animationSpeed === 1 ? "bg-purple-400/50 text-white" : "bg-white text-black"
+                  }`}
+                  disabled={isSimulating && !animatingTimeJump}
+                >
+                  1x
+                </button>
+                <button 
+                  onClick={() => setAnimationSpeed(2)} 
+                  className={`px-3 py-1 rounded border transition-all duration-300 ${
+                    animationSpeed === 2 ? "bg-purple-400/50 text-white" : "bg-white text-black"
+                  }`}
+                  disabled={isSimulating && !animatingTimeJump}
+                >
+                  2x
+                </button>
+              </div>
             </div>
-          </div>
         </div>
 
         {/* Current Time Display */}
         <div className="w-full mb-6 text-center">
-          <div className="inline-block px-4 py-2 bg-black text-white rounded-lg border border-white overflow-hidden relative">
-            <span className="font-semibold">Current Time:</span> 
-            <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-yellow-400" : ""}`}>
-              {currentTime}
-            </span>
-            {animatingTimeJump && (
-              <span className="text-xs text-yellow-400 ml-2">
-                → {timeJumpTarget}
+            <div className="inline-block px-4 py-2 bg-purple-400/50 text-white rounded-lg border border-white overflow-hidden relative">
+              <span className="font-semibold">Current Time:</span> 
+              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-white" : ""}`}>
+                {currentTime}
               </span>
-            )}
+              {animatingTimeJump && (
+                <span className="text-xs text-white ml-2">
+                  → {timeJumpTarget}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
         {/* Process Visualization */}
         <div className="w-full flex flex-col gap-6 mb-8">
           {/* Pending Processes */}
-          <div className="w-full min-h-40  bg-black p-4 rounded-lg border border-white">
+          <div className="w-full min-h-40  bg-purple-400/50 p-4 rounded-lg border border-white">
             <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Pending Processes</h3>
             <div className="flex flex-wrap gap-4 justify-center">
               {pendingProcesses.map((p) => (
                 <div
                   key={p.name}
-                  className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
+                  className={`p-4 rounded-lg bg-yellow-300 border text-center transition-all duration-500 w-32 ${
                     enteringProcess === p.name ? "scale-110 border-yellow-500 border-2" : "border-white"
                   }`}
                   style={{
@@ -407,25 +407,25 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
                 >
                   <p className="font-bold text-lg">{p.name}</p>
                   <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
-                    <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                    <p className="bg-gray-900 rounded p-1">Burst: {p.burstTime}</p>
+                    <p className="bg-sky-500 text-white rounded p-1">Arrival: {p.arrivalTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Burst: {p.burstTime}</p>
                   </div>
                 </div>
               ))}
               {pendingProcesses.length === 0 && !isSimulating && (
-                <p className="text-gray-400 italic">No pending processes</p>
+                <p className="text-white italic">No pending processes</p>
               )}
             </div>
           </div>
 
           {/* Ready Queue */}
-          <div className="w-full min-h-40 bg-black p-4 rounded-lg border border-white">
+          <div className="w-full min-h-40 bg-purple-400/50 p-4 rounded-lg border border-white">
             <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Ready Queue</h3>
             <div className="flex flex-wrap gap-4 justify-center">
               {readyQueue.map((p, index) => (
                 <div
                   key={`${p.name}-${index}`}
-                  className={`p-4 rounded-lg border text-center transition-all duration-500 w-32 ${
+                  className={`p-4 rounded-lg bg-orange-400/[92.9%] border text-center transition-all duration-500 w-32 ${
                     exitingProcess === p.name ? "opacity-50 scale-95" : "border-white"
                   }`}
                   style={{
@@ -434,42 +434,42 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
                 >
                   <p className="font-bold text-lg">{p.name}</p>
                   <div className="grid grid-cols-2 gap-1 mt-2 text-sm">
-                    <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                    <p className="bg-gray-900 rounded p-1">Remaining: {p.remainingTime}</p>
+                    <p className="bg-sky-500 text-white rounded p-1">Arrival: {p.arrivalTime}</p>
+                    <p className="bg-sky-500 text-white rounded p-1">Burst: {p.burstTime}</p>
                   </div>
                 </div>
               ))}
               {readyQueue.length === 0 && (
-                <p className="text-gray-400 italic">No processes in ready queue</p>
+                <p className="text-white-400 italic">No processes in ready queue</p>
               )}
             </div>
           </div>
 
           {/* CPU Execution */}
-          <div className="w-full min-h-40 bg-black p-4 rounded-lg border border-white">
+          <div className="w-full min-h-40 bg-purple-400/50 p-4 rounded-lg border border-white">
             <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">CPU Execution</h3>
             <div className="flex justify-center">
               {currentProcess ? (
                 <div
-                  className="p-6 rounded-lg border-2 text-center w-64 relative overflow-hidden"
+                  className="p-6 rounded-lg border-2 text-center w-64 relative bg-lime-500 overflow-hidden"
                   style={{
                     borderColor: `${processColors[currentProcess.name] || "#3498db"}`,
-                    background: `${processColors[currentProcess.name] || "#3498db"}10`
+                    // background: `${processColors[currentProcess.name] || "red"}10`
                   }}
                 >
                   <p className="font-bold text-xl">{currentProcess.name}</p>
                   <div className="grid grid-cols-2 gap-2 mt-3 text-sm">
-                    <p className="bg-gray-900 rounded p-1">Remaining: {remainingTime[currentProcess.name]}</p>
-                    <p className="bg-gray-900 rounded p-1">Quantum: {timeQuantum}</p>
+                    <p className="bg-sky-400 rounded p-1">Remaining: {remainingTime[currentProcess.name]}</p>
+                    <p className="bg-sky-400 rounded p-1">Quantum: {timeQuantum}</p>
                   </div>
                   
                   {/* Progress bar for quantum */}
-                  <div className="w-full h-2 bg-gray-800 rounded-full mt-4 overflow-hidden">
+                  <div className="w-full h-2 bg-sky-400 rounded-full mt-4 overflow-hidden">
                     <div 
                       className="h-full transition-all duration-300"
                       style={{
                         width: `${quantumProgress}%`,
-                        backgroundColor: processColors[currentProcess.name] || "#3498db"
+                        backgroundColor: processColors[currentProcess.name] || "yellow"
                       }}
                     ></div>
                   </div>
@@ -491,110 +491,127 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
                   `}</style>
                 </div>
               ) : (
-                <p className="text-gray-400 italic py-6">CPU idle</p>
+                <p className="text-white-400 italic py-6">CPU idle</p>
               )}
             </div>
           </div>
 
           {/* Completed Processes */}
-          <div className="w-full min-h-40 bg-black p-4 rounded-lg border border-white">
-            <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Completed Processes</h3>
-            <div className="flex flex-wrap gap-4 justify-center">
-              {completedProcesses.map((p) => (
-                <div
-                  key={p.name}
-                  className="p-4 rounded-lg border border-white text-center w-32 transition-all duration-500 hover:scale-105"
-                  style={{
-                    borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`,
-                    background: `${processColors[p.name] || "#3498db"}10`
-                  }}
-                >
-                  <p className="font-bold text-lg">{p.name}</p>
-                  <div className="grid grid-cols-1 gap-1 mt-2 text-sm">
-                    <p className="bg-gray-900 rounded p-1">Completion: {p.completionTime}</p>
+          <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
+              <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Completed Processes</h3>
+              <div className="flex flex-wrap gap-4 justify-center">
+                {completedProcesses.map((p) => (
+                  <div
+                    key={p.name}
+                    className="p-4 rounded-lg border border-white text-center w-32 animate-fadeIn bg-lime-300 text-black transition-all duration-500"
+                    style={{ 
+                      borderLeftColor: processColors[p.name] || "#3498db",
+                      borderLeftWidth: "5px"
+                    }}
+                  >
+                    <p className="font-bold text-lg">{p.name}</p>
+                    <p className="text-sm mt-1">Completed</p>
                   </div>
-                </div>
-              ))}
-              {completedProcesses.length === 0 && (
-                <p className="text-gray-400 italic">No completed processes</p>
-              )}
-            </div>
+                ))}
+                {completedProcesses.length === 0 && (
+                  <p className="text-gray-400 italic">No completed processes</p>
+                )}
+              </div>
           </div>
         </div>
 
         {/* Gantt Chart */}
-        <div className="w-full bg-black p-4 rounded-lg border border-white mb-8">
-          <h3 className="text-lg font-semibold mb-4 border-b border-white pb-2">Gantt Chart</h3>
-          
-          {ganttChart.length > 0 ? (
-            <div className="relative">
-              {/* Time Axis */}
-              <div className="absolute left-0 right-0 bottom-0 h-8 border-t border-white"></div>
-              
-              {/* Process Blocks */}
-              <div className="flex h-20 mb-12 relative">
-                {ganttChart.map((entry, index) => {
-                  // Calculate total timeline length for scaling
-                  const totalTime = ganttChart.reduce((sum, e) => sum + (e.endTime - e.startTime), 0);
-                  
-                  // Calculate width as percentage of total time
-                  const blockWidth = ((entry.endTime - entry.startTime) / totalTime) * 100;
-                  
-                  return (
-                    <div key={`${entry.name}-${index}`} className="flex h-full group">
-                      {/* Process block */}
-                      <div className="relative h-full">
-                        {/* Process box */}
-                        <div
-                          className="h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 group-hover:shadow-lg"
-                          style={{
-                            width: `${blockWidth}%`,
-                            backgroundColor: entry.isIdle ? "#555" : (processColors[entry.name] || "#3498db"),
-                            minWidth: '50px',
-                            opacity: entry.isIdle ? 0.6 : 1
-                          }}
-                        >
-                          <div className="flex flex-col items-center">
-                            <span className="text-sm font-bold">{entry.isIdle ? "Idle" : entry.name}</span>
-                            <span className="text-xs">{entry.endTime - entry.startTime}u</span>
-                          </div>
-                        </div>
-                        
-                        {/* Vertical timeline connector */}
-                        <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-gray-600 transform -translate-x-1/2"></div>
-                        
-                        {/* Time labels */}
-                        <div className="absolute left-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform -translate-x-1/2">
-                          {entry.startTime}
-                        </div>
-                        
-                        {index === ganttChart.length - 1 && (
-                          <div className="absolute right-0 -bottom-8 text-xs font-medium bg-gray-800 px-2 py-1 rounded-md transform translate-x-1/2">
-                            {entry.endTime}
+        <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
+            <h3 className="text-lg font-semibold mb-4 border-b border-white pb-2">Gantt Chart</h3>
+            
+            {ganttChart.length > 0 ? (
+              <div className="relative">
+                {/* Time Axis */}
+                <div className="absolute left-0 right-0 bottom-0 h-8 border-t border-white"></div>
+                
+                {/* Process Blocks */}
+                <div className="flex h-20 mb-12 relative">
+                  {ganttChart.map((p, index) => {
+                    // Calculate previous process end time
+                    const prevEndTime = index > 0 ? ganttChart[index - 1].endTime : 0;
+                    
+                    // Calculate idle time gap if any
+                    const idleTime = p.startTime - prevEndTime;
+                    
+                    // Calculate total timeline length for scaling
+                    const totalTime = ganttChart[ganttChart.length - 1].endTime;
+                    
+                    // Calculate widths as percentages of total time
+                    const idleWidth = (idleTime / totalTime) * 100;
+                    const processWidth = ((p.endTime - p.startTime) / totalTime) * 100;
+                    
+                    return (
+                      <div key={p.name} className="flex h-full group">
+                        {/* Idle time block */}
+                        {idleTime > 0 && (
+                          <div 
+                            className="h-full flex items-center justify-center bg-purple-400/30 border-r border-white"
+                            style={{ 
+                              width: `${idleWidth}%`,
+                              minWidth: idleTime > 0 ? '30px' : '0'
+                            }}
+                          >
+                            <span className="text-white-300 text-xs font-medium">Idle</span>
                           </div>
                         )}
+                        
+                        {/* Process block with gap */}
+                        <div className="relative h-full px-1">
+                          {/* Process box */}
+                          <div
+                            className="h-4/5 mt-2 flex items-center justify-center bg-yellow-300 text-black font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105"
+                            style={{
+                              width: `${processWidth}%`,
+                              // backgroundColor: processColors[p.name] || "#3498db",
+                              minWidth: '50px'
+                            }}
+                          >
+                            <div className="flex flex-col items-center text-black">
+                              <span className="text-sm font-bold">{p.name}</span>
+                              <span className="text-xs ">{p.endTime - p.startTime}u</span>
+                            </div>
+                          </div>
+                          
+                          {/* Vertical timeline connector */}
+                          <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-white transform -translate-x-1/2"></div>
+                          
+                          {/* Time labels with improved positioning */}
+                          <div className="absolute left-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform -translate-x-1/2">
+                            {p.startTime}
+                          </div>
+                          
+                          {index === ganttChart.length - 1 && (
+                            <div className="absolute right-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform translate-x-1/2">
+                              {p.endTime}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-                
-                {/* Timeline base */}
-                <div className="absolute left-0 right-0 -bottom-8 h-px bg-gray-500"></div>
+                    );
+                  })}
+                  
+                  {/* Timeline base */}
+                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-white"></div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <p className="text-gray-400 italic text-center py-8">Gantt chart will appear here after simulation starts</p>
-          )}
+            ) : (
+              <p className="text-gray-400 italic text-center py-8">Gantt chart will appear here after simulation starts</p>
+            )}
         </div>
 
         {/* Process Statistics */}
         {!isSimulating && ganttChart.length > 0 && (
           <div className="w-full">
             <h3 className="text-lg font-semibold mb-3">Process Statistics</h3>
-            <div className="w-full overflow-x-auto bg-black rounded-lg border border-white">
+            <div className="w-full overflow-x-auto bg-rose-400/50 rounded-lg border border-white">
               <table className="min-w-full border-collapse border border-white text-sm">
                 <thead>
-                  <tr className="bg-gray-900">
+                  <tr className="bg-rose-400/50">
                     <th className="border border-white p-2">Process</th>
                     <th className="border border-white p-2">Arrival Time</th>
                     <th className="border border-white p-2">Burst Time</th>
@@ -606,8 +623,8 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
                 </thead>
                 <tbody>
                   {getProcessStatsArray().map((stat) => (
-                    <tr key={stat.name} className="hover:bg-gray-900 transition-colors duration-200">
-                      <td className="border border-white p-2 font-medium" style={{ color: processColors[stat.name] || "#3498db" }}>
+                    <tr key={stat.name} className=" transition-colors duration-200">
+                      <td className="border border-white p-2 font-medium" style={{ color: processColors[stat.name] || "white" }}>
                         {stat.name}
                       </td>
                       <td className="border border-white p-2 text-center">{stat.arrivalTime}</td>
@@ -618,7 +635,7 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
                       <td className="border border-white p-2 text-center">{stat.responseTime}</td>
                     </tr>
                   ))}
-                  <tr className="bg-gray-900 font-bold">
+                  {/* <tr className="bg-gray-900 font-bold">
                     <td className="border border-white p-2">Average</td>
                     <td className="border border-white p-2 text-center">-</td>
                     <td className="border border-white p-2 text-center">-</td>
@@ -632,10 +649,17 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
                     <td className="border border-white p-2 text-center">
                       {(getProcessStatsArray().reduce((sum, stat) => sum + stat.responseTime, 0) / getProcessStatsArray().length).toFixed(2)}
                     </td>
-                  </tr>
+                  </tr> */}
                 </tbody>
               </table>
             </div>
+
+            <div className="mt-4 ">
+            <p>Average Turnaround Time: {(getProcessStatsArray().reduce((sum, stat) => sum + stat.turnaroundTime, 0) / getProcessStatsArray().length).toFixed(2)}</p>
+            <p>Average Waiting Time: {(getProcessStatsArray().reduce((sum, stat) => sum + stat.waitingTime, 0) / getProcessStatsArray().length).toFixed(2)}</p>
+            <p>Average Response Time: {(getProcessStatsArray().reduce((sum, stat) => sum + stat.responseTime, 0) / getProcessStatsArray().length).toFixed(2)}</p>
+          </div>
+
           </div>
         )}
       </div>
@@ -656,7 +680,7 @@ const RoundRobin = ({ processes, timeQuantum = 2 }) => {
 
           <ol className="space-y-2 list-decimal list-inside text-sm font-medium text-lg">
             {instructions.map((txt, idx) => (
-              <li key={idx} className="leading-snug">
+              <li key={idx} className="leading-snug text-lg">
                 {txt}
               </li>
             ))}

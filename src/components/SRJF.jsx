@@ -425,8 +425,8 @@ const SRJF = ({ processes }) => {
               disabled={isSimulating}
               className={`px-6 py-3 rounded-lg border border-white font-bold transition-all duration-300 ${
                 isSimulating 
-                  ? "bg-gray-800 text-gray-400 cursor-not-allowed" 
-                  : "bg-black text-white hover:bg-gray-900"
+                  ? "bg-lime-400/50 text-white cursor-not-allowed" 
+                  : "bg-red-400 text-white hover:bg-red-300"
               }`}
             >
               {isSimulating ? "Simulation in Progress..." : "Start SRJF Simulation"}
@@ -439,7 +439,7 @@ const SRJF = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(0.5)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 0.5 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 0.5 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -448,7 +448,7 @@ const SRJF = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(1)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 1 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 1 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -457,7 +457,7 @@ const SRJF = ({ processes }) => {
                 <button 
                   onClick={() => setAnimationSpeed(2)} 
                   className={`px-3 py-1 rounded border transition-all duration-300 ${
-                    animationSpeed === 2 ? "bg-white text-black" : "bg-black text-white"
+                    animationSpeed === 2 ? "bg-purple-400/50 text-white" : "bg-white text-black"
                   }`}
                   disabled={isSimulating && !animatingTimeJump}
                 >
@@ -469,13 +469,13 @@ const SRJF = ({ processes }) => {
 
           {/* Current Time Display */}
           <div className="w-full mb-6 text-center">
-            <div className="inline-block px-4 py-2 bg-black text-white rounded-lg border border-white overflow-hidden relative">
+            <div className="inline-block px-4 py-2 bg-purple-400/50 text-white rounded-lg border border-white overflow-hidden relative">
               <span className="font-semibold">Current Time:</span> 
-              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-yellow-400" : ""}`}>
+              <span className={`inline-block min-w-[3ch] text-center ${animatingTimeJump ? "animate-pulse text-white" : ""}`}>
                 {currentTime}
               </span>
               {animatingTimeJump && (
-                <span className="text-xs text-yellow-400 ml-2">
+                <span className="text-xs text-white ml-2">
                   → {timeJumpTarget}
                 </span>
               )}
@@ -485,44 +485,44 @@ const SRJF = ({ processes }) => {
           {/* Process Queue Visualization */}
           <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {/* Pending Processes */}
-            <div className="bg-black p-4 rounded-lg border border-white">
-              <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Pending Processes</h3>
-              <div className="flex flex-wrap gap-4 justify-center">
+            <div className="bg-purple-400/50 p-4 rounded-lg border border-white">
+              <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2 ">Pending Processes</h3>
+              <div className="flex flex-wrap gap-4 justify-center ">
                 {pendingProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className="p-3 rounded-lg border border-white text-center w-28"
+                    className="p-3 rounded-lg border border-white text-center w-28 bg-yellow-300"
                     style={{
                       borderLeft: `5px solid ${processColors[p.name] || "#3498db"}`
                     }}
                   >
                     <p className="font-bold text-lg">{p.name}</p>
                     <div className="grid grid-cols-1 gap-1 mt-2 text-xs">
-                      <p className="bg-gray-900 rounded p-1">Arrival: {p.arrivalTime}</p>
-                      <p className="bg-gray-900 rounded p-1">Burst: {p.originalBurstTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Arrival: {p.arrivalTime}</p>
+                      <p className="bg-sky-500 text-white rounded p-1">Burst: {p.burstTime}</p>
                     </div>
                   </div>
                 ))}
                 {pendingProcesses.length === 0 && (
-                  <p className="text-gray-400 italic">No pending processes</p>
+                  <p className="text-white italic">No pending processes</p>
                 )}
               </div>
             </div>
 
             {/* Active Processes */}
-            <div className="bg-black p-4 rounded-lg border border-white">
+            <div className="bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Active Processes</h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 {activeProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className={`p-3 rounded-lg border text-center w-28 transition-all duration-300 ${
+                    className={`p-3 rounded-lg border  bg-orange-300 text-center w-28 transition-all duration-300 ${
                       currentProcess && currentProcess.name === p.name
-                        ? "scale-110 border-yellow-500 border-2 bg-yellow-900 bg-opacity-30"
+                        ? "scale-110 border-yellow-500 border-2 bg-orange-500 bg-opacity-30"
                         : comparingProcess && comparingProcess.name === p.name
-                          ? "scale-105 border-red-500 border-2 bg-red-900 bg-opacity-30"
+                          ? "scale-105 border-red-500 border-2 bg-orange-400 bg-opacity-30"
                           : preemption === p.name
-                            ? "scale-95 border-blue-500 border-2 bg-blue-900 bg-opacity-30"
+                            ? "scale-95 border-blue-500 border-2 bg-orange-400/70 bg-opacity-30"
                             : "border-white"
                     }`}
                     style={{
@@ -531,14 +531,14 @@ const SRJF = ({ processes }) => {
                   >
                     <p className="font-bold text-lg">{p.name}</p>
                     <div className="grid grid-cols-1 gap-1 mt-2 text-xs">
-                      <p className="bg-gray-900 rounded p-1">Remaining: {p.remainingTime}</p>
-                      <div className="bg-gray-900 rounded p-1 mt-1">
-                        <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                      <p className="bg-sky-500 rounded p-1">Remaining: {p.remainingTime}</p>
+                      <div className="bg-sky-500 rounded p-1 mt-1">
+                        <div className="w-full bg-sky-500 h-2 rounded-full overflow-hidden">
                           <div 
-                            className="bg-blue-500 h-full"
+                            className="bg-sky-500 h-full"
                             style={{
                               width: `${(p.remainingTime / p.originalBurstTime) * 100}%`,
-                              backgroundColor: processColors[p.name] || "#3498db"
+                              backgroundColor: processColors[p.name] || "yellow"
                             }}
                           ></div>
                         </div>
@@ -547,26 +547,26 @@ const SRJF = ({ processes }) => {
                   </div>
                 ))}
                 {activeProcesses.length === 0 && (
-                  <p className="text-gray-400 italic">No active processes</p>
+                  <p className="text-white italic">No active processes</p>
                 )}
               </div>
             </div>
 
             {/* Completed Processes */}
-            <div className="bg-black p-4 rounded-lg border border-white">
+             <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Completed Processes</h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 {completedProcesses.map((p) => (
                   <div
                     key={p.name}
-                    className="p-3 rounded-lg border border-white text-center w-28"
+                    className="p-4 rounded-lg border border-white text-center w-32 animate-fadeIn bg-lime-300 text-black transition-all duration-500"
                     style={{ 
                       borderLeftColor: processColors[p.name] || "#3498db",
                       borderLeftWidth: "5px"
                     }}
                   >
                     <p className="font-bold text-lg">{p.name}</p>
-                    <p className="text-xs mt-1 bg-gray-900 rounded p-1">Completed</p>
+                    <p className="text-sm mt-1">Completed</p>
                   </div>
                 ))}
                 {completedProcesses.length === 0 && (
@@ -577,7 +577,7 @@ const SRJF = ({ processes }) => {
           </div>
 
           {/* Gantt Chart */}
-          <div className="w-full bg-black p-4 rounded-lg border border-white mb-8">
+          <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
             <h3 className="text-lg font-semibold mb-4 border-b border-white pb-2">Gantt Chart</h3>
             
             {ganttChart.length > 0 ? (
@@ -588,53 +588,71 @@ const SRJF = ({ processes }) => {
                 {/* Process Blocks */}
                 <div className="flex h-20 mb-12 relative">
                   {ganttChart.map((p, index) => {
-                    // Skip if endTime is not set yet
-                    if (p.endTime === null) return null;
+                    // Calculate previous process end time
+                    const prevEndTime = index > 0 ? ganttChart[index - 1].endTime : 0;
+                    
+                    // Calculate idle time gap if any
+                    const idleTime = p.startTime - prevEndTime;
                     
                     // Calculate total timeline length for scaling
-                    const totalTime = Math.max(...ganttChart.filter(g => g.endTime !== null).map(g => g.endTime));
+                    const totalTime = ganttChart[ganttChart.length - 1].endTime;
                     
-                    // Calculate width as percentage of total time
-                    const blockWidth = ((p.endTime - p.startTime) / totalTime) * 100;
+                    // Calculate widths as percentages of total time
+                    const idleWidth = (idleTime / totalTime) * 100;
+                    const processWidth = ((p.endTime - p.startTime) / totalTime) * 100;
                     
                     return (
-                      <div key={`${p.name}-${p.startTime}`} className="relative h-full">
-                        {/* Process block */}
-                        <div
-                          className={`h-4/5 mt-2 flex items-center justify-center text-white font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 ${
-                            p.completed ? "" : "border-r-4 border-dashed border-white"
-                          }`}
-                          style={{
-                            width: `${blockWidth}%`,
-                            backgroundColor: processColors[p.name] || "#3498db",
-                            minWidth: '30px'
-                          }}
-                        >
-                          <div className="flex flex-col items-center p-1">
-                            <span className="text-sm font-bold">{p.name}</span>
-                            <span className="text-xs">{p.endTime - p.startTime}u</span>
-                          </div>
-                        </div>
-                        
-                        {/* Vertical timeline connector */}
-                        <div className="absolute left-0 -bottom-8 w-px h-8 bg-gray-600"></div>
-                        
-                        {/* Time label */}
-                        <div className="absolute left-0 -bottom-8 text-xs font-medium bg-gray-800 px-1 py-1 rounded-md transform -translate-x-1/2">
-                          {p.startTime}
-                        </div>
-                        
-                        {index === ganttChart.length - 1 && (
-                          <div className="absolute right-0 -bottom-8 text-xs font-medium bg-gray-800 px-1 py-1 rounded-md transform translate-x-1/2">
-                            {p.endTime}
+                      <div key={p.name} className="flex h-full group">
+                        {/* Idle time block */}
+                        {idleTime > 0 && (
+                          <div 
+                            className="h-full flex items-center justify-center bg-purple-400/30 border-r border-white"
+                            style={{ 
+                              width: `${idleWidth}%`,
+                              minWidth: idleTime > 0 ? '30px' : '0'
+                            }}
+                          >
+                            <span className="text-white-300 text-xs font-medium">Idle</span>
                           </div>
                         )}
+                        
+                        {/* Process block with gap */}
+                        <div className="relative h-full px-1">
+                          {/* Process box */}
+                          <div
+                            className="h-4/5 mt-2 flex items-center justify-center bg-yellow-300 text-black font-bold rounded-md shadow-md transition-all duration-300 hover:h-full hover:mt-0 hover:scale-105"
+                            style={{
+                              width: `${processWidth}%`,
+                              // backgroundColor: processColors[p.name] || "#3498db",
+                              minWidth: '50px'
+                            }}
+                          >
+                            <div className="flex flex-col items-center text-black">
+                              <span className="text-sm font-bold">{p.name}</span>
+                              <span className="text-xs ">{p.endTime - p.startTime}u</span>
+                            </div>
+                          </div>
+                          
+                          {/* Vertical timeline connector */}
+                          <div className="absolute left-1/2 -bottom-8 w-px h-8 bg-white transform -translate-x-1/2"></div>
+                          
+                          {/* Time labels with improved positioning */}
+                          <div className="absolute left-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform -translate-x-1/2">
+                            {p.startTime}
+                          </div>
+                          
+                          {index === ganttChart.length - 1 && (
+                            <div className="absolute right-0 -bottom-8 text-xs font-medium bg-purple-700 px-2 py-1 rounded-md transform translate-x-1/2">
+                              {p.endTime}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
                   
                   {/* Timeline base */}
-                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-gray-500"></div>
+                  <div className="absolute left-0 right-0 -bottom-8 h-px bg-white"></div>
                 </div>
               </div>
             ) : (
@@ -644,13 +662,13 @@ const SRJF = ({ processes }) => {
 
           {/* Metrics Table (when simulation completes) */}
           {Object.keys(metrics).length > 0 && completedProcesses.length === processes.length && (
-            <div className="w-full bg-black p-4 rounded-lg border border-white">
+            <div className="w-full bg-purple-400/50 p-4 rounded-lg border border-white">
               <h3 className="text-lg font-semibold mb-3 border-b border-white pb-2">Performance Metrics</h3>
               
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-black">
+                <table className="min-w-full bg-rose-400/50">
                   <thead>
-                    <tr className="bg-gray-900">
+                    <tr className="bg-rose-400/50">
                       <th className="py-2 px-4 border border-white">Process</th>
                       <th className="py-2 px-4 border border-white">Arrival Time</th>
                       <th className="py-2 px-4 border border-white">Burst Time</th>
@@ -663,7 +681,7 @@ const SRJF = ({ processes }) => {
                   <tbody>
                     {Object.entries(metrics).map(([processName, data]) => (
                       <tr key={processName}>
-                        <td className="py-2 px-4 border border-white font-medium" style={{color: processColors[processName] || "#3498db"}}>{processName}</td>
+                        <td className="py-2 px-4 border border-white font-medium" style={{color: processColors[processName] || "white"}}>{processName}</td>
                         <td className="py-2 px-4 border border-white text-center">{data.arrivalTime}</td>
                         <td className="py-2 px-4 border border-white text-center">{data.burstTime}</td>
                         <td className="py-2 px-4 border border-white text-center">{data.completionTime}</td>
@@ -674,23 +692,30 @@ const SRJF = ({ processes }) => {
                     ))}
                     
                     {/* Average metrics row */}
-                    {Object.keys(metrics).length > 0 && (
-                      <tr className="bg-gray-900 font-semibold">
-                        <td className="py-2 px-4 border border-white text-right" colSpan="4">Average</td>
-                        <td className="py-2 px-4 border border-white text-center">
-                          {(Object.values(metrics).reduce((sum, data) => sum + data.turnaroundTime, 0) / Object.keys(metrics).length).toFixed(2)}
-                        </td>
-                        <td className="py-2 px-4 border border-white text-center">
-                          {(Object.values(metrics).reduce((sum, data) => sum + data.waitingTime, 0) / Object.keys(metrics).length).toFixed(2)}
-                        </td>
-                        <td className="py-2 px-4 border border-white text-center">
-                          {(Object.values(metrics).reduce((sum, data) => sum + data.responseTime, 0) / Object.keys(metrics).length).toFixed(2)}
-                        </td>
-                      </tr>
-                    )}
                   </tbody>
                 </table>
               </div>
+
+              <div className="mt-4 text-white">
+                {Object.keys(metrics).length > 0 && (
+                  <div className="space-y-2 p-4 rounded-xl shadow">
+                    <p>
+                      <span className="font-semibold">Average Turnaround Time:</span>{' '}
+                      {(Object.values(metrics).reduce((sum, data) => sum + data.turnaroundTime, 0) / Object.keys(metrics).length).toFixed(2)}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Average Waiting Time:</span>{' '}
+                      {(Object.values(metrics).reduce((sum, data) => sum + data.waitingTime, 0) / Object.keys(metrics).length).toFixed(2)}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Average Response Time:</span>{' '}
+                      {(Object.values(metrics).reduce((sum, data) => sum + data.responseTime, 0) / Object.keys(metrics).length).toFixed(2)}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+
             </div>
           )}
         {/* </div> */}
@@ -712,7 +737,7 @@ const SRJF = ({ processes }) => {
 
           <ol className="space-y-2 list-decimal list-inside text-sm font-medium text-lg">
             {instructions.map((txt, idx) => (
-              <li key={idx} className="leading-snug">
+              <li key={idx} className="leading-snug text-lg">
                 {txt}
               </li>
             ))}
