@@ -160,8 +160,8 @@ const InputForm = ({ onStartSimulation }) => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Disk Scheduling Simulator</h2>
+    <div className="p-6 bg-linear-to-r from-green-200 via-teal-400 to-cyan-600 rounded-lg shadow-md">
+      {/* <h2 className="text-2xl font-bold mb-4">Disk Scheduling Simulator</h2> */}
       
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -169,7 +169,7 @@ const InputForm = ({ onStartSimulation }) => {
             Track Requests (comma separated numbers)
           </label>
           <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="bg-white shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="requests"
             type="text"
             placeholder="e.g., 98, 183, 37, 122, 14, 124, 65, 67"
@@ -183,7 +183,7 @@ const InputForm = ({ onStartSimulation }) => {
             Starting Head Position
           </label>
           <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="bg-white shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="startPosition"
             type="text"
             placeholder="e.g., 53"
@@ -197,7 +197,7 @@ const InputForm = ({ onStartSimulation }) => {
             Algorithm
           </label>
           <select
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="bg-white shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="algorithm"
             value={algorithm}
             onChange={handleAlgorithmChange}
@@ -235,7 +235,7 @@ const InputForm = ({ onStartSimulation }) => {
         </div>
         )} */}
       {algorithm && algorithmDescriptions[algorithm] && (
-        <div className="bg-gray-50 mt-6 p-6 rounded shadow border border-gray-300">
+        <div className=" text-xl bg-linear-to-r from-cyan-100 via-blue-300 to-indigo-400 mt-6 p-6 rounded shadow border border-gray-300">
           <h2 className="text-xl font-bold mb-2">{algorithmDescriptions[algorithm].name}</h2>
           <p className="mb-4 text-gray-700">{algorithmDescriptions[algorithm].description}</p>
           

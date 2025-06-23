@@ -54,8 +54,8 @@ const DiskVisualizer = ({ path = [], diskSize = 199, currentStep, onStepChange, 
   const prevPos = currentStep > 0 ? positions[currentStep - 1] : null;
 
   return (
-    <div className="p-4 sm:p-6 bg-white rounded-lg shadow-xl my-4 flex flex-col items-center space-y-6">
-      <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-800">
+    <div className="p-4 sm:p-6 bg-linear-to-r from-cyan-200 via-blue-400 to-indigo-600 rounded-lg shadow-xl my-4 flex flex-col items-center space-y-6">
+      <h3 className="text-xl sm:text-2xl font-bold text-center text-white">
         Disk Head Movement Visualization
       </h3>
       <div className="w-full border border-gray-300 rounded-lg overflow-hidden shadow-inner bg-gray-50">
@@ -64,7 +64,7 @@ const DiskVisualizer = ({ path = [], diskSize = 199, currentStep, onStepChange, 
           viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
           width="100%"
           preserveAspectRatio="xMidYMid meet"
-          style={{ backgroundColor: '#f9fafb' }}
+          style={{ backgroundColor: '#fff2e0' }}
         >
           <g className="ruler">
             <line x1={padding.x} y1={padding.y} x2={viewBoxWidth - padding.x} y2={padding.y} stroke="#6b7280" strokeWidth="2"/>

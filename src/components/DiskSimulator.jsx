@@ -119,10 +119,10 @@ function DiskSimulator() {
 //   }, [isRunning, currentTrack, requests, currentTime]);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
+    <div className="min-h-screen bg-linear-to-r from-lime-200 via-green-400 to-emerald-600 py-8 px-4">
             <div className="max-w-6xl mx-auto">
               <div className="mb-8 text-center">
-                <h1 className="text-4xl font-bold">Disk Scheduling Algorithm Simulator</h1>
+                <h1 className="text-4xl font-bold text-gray-100">Disk Scheduling Algorithm Simulator</h1>
               </div>
 
             <div className="grid grid-cols-1 gap-6">
