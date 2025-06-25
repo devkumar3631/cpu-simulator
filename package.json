@@ -1,5 +1,6 @@
 {
-  "name": "my-app",
+  "name": "operating-system",
+  "homepage": "https://devkumar3631.github.io/operating_system_algorithm_simulator/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
