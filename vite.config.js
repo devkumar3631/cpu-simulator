@@ -11,4 +11,5 @@ export default defineConfig({
     },
   },
   plugins: [react(),tailwindcss()],
+  base: '/operating_system_algorithm_simulator/'
 })
