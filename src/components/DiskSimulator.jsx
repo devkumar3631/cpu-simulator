@@ -65,13 +65,13 @@ function DiskSimulator() {
         result = sstfAlgorithm(requests, startPosition);
         break;
       case 'scan':
-        result = scanAlgorithm(requests, startPosition);
+        result = scanAlgorithm(requests, startPosition, 'up', 400);
         break;
       case 'cscan':
         result = cscanAlgorithm(requests, startPosition);
         break;
       case 'look':
-        result = lookAlgorithm(requests, startPosition);
+        result = lookAlgorithm(requests, startPosition,'up');
         break;
       case 'clook':
         result = clookAlgorithm(requests, startPosition);
@@ -79,6 +79,8 @@ function DiskSimulator() {
       default:
         result = fcfsAlgorithm(requests, startPosition);
     }
+    
+    console.log('Simulation Result:', result);
 
     setSimulationData({
       requests,
